@@ -62,7 +62,11 @@
                             <select id="stud-class" class="p-2 border rounded bg-slate-50 text-xs class-dropdown-list"></select>
                             <select id="stud-term" class="p-2 border rounded bg-slate-50 text-xs term-dropdown-list"></select>
                         </div>
-                        <select id="stud-year" class="w-full p-2 border rounded bg-slate-50 text-xs"><option>2026</option><option>2027</option></select>
+                        <select id="stud-year" class="w-full p-2 border rounded bg-slate-50 text-xs">
+                            <option value="2025">2025</option>
+                            <option value="2026" selected>2026</option>
+                            <option value="2027">2027</option>
+                        </select>
                         <button onclick="addNewStudent()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded text-xs shadow cursor-pointer">Save Student Record</button>
                     </div>
                 </div>
@@ -71,7 +75,11 @@
                     <h2 class="text-sm font-black text-slate-800 mb-3 uppercase tracking-wider border-b pb-1.5 text-blue-900">⚙️ 2. Add/Assign Dues</h2>
                     <div class="space-y-2.5">
                         <div class="grid grid-cols-2 gap-2">
-                            <select id="dues-year" onchange="loadStudentsForDuesDropdown()" class="p-2 border rounded bg-slate-50 text-xs"><option>2026</option><option>2027</option></select>
+                            <select id="dues-year" onchange="loadStudentsForDuesDropdown()" class="p-2 border rounded bg-slate-50 text-xs">
+                                <option value="2025">2025</option>
+                                <option value="2026" selected>2026</option>
+                                <option value="2027">2027</option>
+                            </select>
                             <select id="dues-class" onchange="loadStudentsForDuesDropdown()" class="p-2 border rounded bg-slate-50 text-xs class-dropdown-list"></select>
                         </div>
                         <select id="dues-term" onchange="loadStudentsForDuesDropdown()" class="w-full p-2 border rounded bg-slate-50 text-xs term-dropdown-list"></select>
@@ -103,7 +111,11 @@
                     <h2 class="text-sm font-black text-slate-800 mb-3 uppercase tracking-wider border-b pb-1.5 text-blue-900">💳 3. Collect & Submit Student Fees</h2>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-3 bg-slate-50 p-2.5 rounded-lg border">
-                        <select id="collect-year" class="p-1.5 border rounded text-xs bg-white"><option>2026</option><option>2027</option></select>
+                        <select id="collect-year" class="p-1.5 border rounded text-xs bg-white">
+                            <option value="2025">2025</option>
+                            <option value="2026" selected>2026</option>
+                            <option value="2027">2027</option>
+                        </select>
                         <select id="collect-class" class="p-1.5 border rounded text-xs bg-white class-dropdown-list"></select>
                         <select id="collect-term" class="p-1.5 border rounded text-xs bg-white term-dropdown-list"></select>
                         <button onclick="loadStudentsForPayment()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1.5 rounded text-xs cursor-pointer">Fetch List</button>
@@ -176,7 +188,11 @@
 
             <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-2.5 shadow-inner">
                 <div class="grid grid-cols-3 gap-2">
-                    <select id="search-year" class="p-2 border bg-white rounded font-bold"><option>2026</option><option>2027</option></select>
+                    <select id="search-year" class="p-2 border bg-white rounded font-bold">
+                        <option value="2025">2025</option>
+                        <option value="2026" selected>2026</option>
+                        <option value="2027">2027</option>
+                    </select>
                     <select id="search-class" class="p-2 border bg-white rounded class-dropdown-list font-bold"></select>
                     <select id="search-term" class="p-2 border bg-white rounded term-dropdown-list font-bold"></select>
                 </div>
@@ -185,7 +201,7 @@
                     <input type="text" id="search-roll" placeholder="OR Search Roll Number (e.g. 8)" class="p-2 border bg-white rounded font-bold text-blue-900">
                 </div>
                 <button onclick="executePublicSearch()" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-black py-2 rounded text-xs uppercase tracking-wider cursor-pointer">
-                    🚀 Run Live Verification Search / विवरण चेक करें
+                    🚀 Run Live Verification Search / विवरण Check Karein
                 </button>
             </div>
 
@@ -199,7 +215,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, query, where, arrayUnion } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Firebase Configuration Registry Connection Blocks
         const firebaseConfig = {
           apiKey: "AIzaSyAw_f7ew1GMy5HhL9Io-i7zfA3mOQSpn2s",
           authDomain: "super-educated-class.firebaseapp.com",
@@ -215,7 +230,7 @@
 
         let selectedStudentId = null;
         let selectedStudentData = null;
-        const b64_token = "U3VwZXJAMjAyNg=="; // Super@2026
+        const b64_token = "U3VwZXJAMjAyNg=="; // Password: Super@2026
         const MASTER_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -226,16 +241,15 @@
 
         function populateDropdownLists() {
             document.querySelectorAll('.class-dropdown-list').forEach(d => {
-                d.innerHTML = ""; for(let i=1; i<=10; i++) d.innerHTML += `<option value="Class ${i}">Class ${i}</option>`;
+                d.innerHTML = ""; for(let i=1; i<=10; i++) d.innerHTML += <option value="Class ${i}">Class ${i}</option>;
             });
             document.querySelectorAll('.term-dropdown-list').forEach(d => {
                 d.innerHTML = ""; ["First Term", "Second Term", "Third Term", "Fourth Term", "Fifth Term", "Sixth Term"].forEach((t, i) => {
-                    d.innerHTML += `<option value="Term ${i+1}">${t}</option>`;
+                    d.innerHTML += <option value="Term ${i+1}">${t}</option>;
                 });
             });
         }
 
-        // Auth management core controls
         window.toggleTeacherLoginModal = function() {
             const m = document.getElementById('loginModal'); m.classList.toggle('hidden'); if(!m.classList.contains('hidden')) m.classList.add('flex');
         }
@@ -266,7 +280,6 @@
             document.getElementById('publicSearchModal').style.display = 'none'; 
         }
 
-        // Teacher Actions: Data Writes
         window.loadStudentsForDuesDropdown = async function() {
             const yr = document.getElementById('dues-year').value;
             const cls = document.getElementById('dues-class').value;
@@ -278,7 +291,7 @@
                 const snap = await getDocs(q);
                 if(snap.empty) { drop.innerHTML = "<option value=''>No profiles registered here.</option>"; return; }
                 drop.innerHTML = "<option value=''>-- Select Student --</option>";
-                snap.forEach(d => { drop.innerHTML += `<option value="${d.id}">${d.data().name} (ID: ${d.data().rollNumber})</option>`; });
+                snap.forEach(d => { drop.innerHTML += <option value="${d.id}">${d.data().name} (ID: ${d.data().rollNumber})</option>; });
             } catch(e){}
         }
 
@@ -292,7 +305,7 @@
 
             if(!name || !roll) { alert("Fields incomplete!"); return; }
             try {
-                const docId = `${yr}_${cls}_${roll}`.replace(/\s+/g, '');
+                const docId = ${yr}_${cls}_${roll}.replace(/\s+/g, '');
                 let monthsLedger = {}; MASTER_MONTHS.forEach(m => { monthsLedger[m] = { status: "None", amount: 0 }; });
                 await setDoc(doc(db, "students", docId), { name, fatherName: fat, rollNumber: roll, class: cls, term: trm, year: yr, totalDue: 0, monthsLedger, transactions: [] });
                 alert("Success: Student saved!");
@@ -335,7 +348,7 @@
                     const s = d.data();
                     const b = document.createElement('button');
                     b.className = "w-full text-left p-2 rounded bg-white hover:bg-blue-50 mb-1 border flex justify-between items-center text-xs font-bold cursor-pointer";
-                    b.innerHTML = `<div><p>${s.name}</p><span class="text-[10px] text-gray-400">ID: ${s.rollNumber}</span></div><span class="text-red-600">₹${s.totalDue}</span>`;
+                    b.innerHTML = <div><p>${s.name}</p><span class="text-[10px] text-gray-400">ID: ${s.rollNumber}</span></div><span class="text-red-600">₹${s.totalDue}</span>;
                     b.onclick = () => selectStudentForPaymentPanel(d.id, s);
                     div.appendChild(b);
                 });
@@ -345,11 +358,11 @@
         function selectStudentForPaymentPanel(id, data) {
             selectedStudentId = id; selectedStudentData = data;
             document.getElementById('pay-student-title').innerText = data.name;
-            document.getElementById('pay-student-meta').innerText = `ID: ${data.rollNumber} | Class: ${data.class}`;
+            document.getElementById('pay-student-meta').innerText = ID: ${data.rollNumber} | Class: ${data.class};
             const cbBox = document.getElementById('pay-months-checkboxes'); cbBox.innerHTML = "";
             Object.keys(data.monthsLedger || {}).forEach(k => {
                 if(data.monthsLedger[k].status === "Unpaid") {
-                    cbBox.innerHTML += `<label class="flex items-center gap-1 p-1 bg-slate-50 border rounded text-[10px] font-bold"><input type="checkbox" class="month-pay-checkbox" value="${k}" data-amount="${data.monthsLedger[k].amount}" onchange="calculateLiveSelectedMonthsFee()"><span>${k}(₹${data.monthsLedger[k].amount})</span></label>`;
+                    cbBox.innerHTML += <label class="flex items-center gap-1 p-1 bg-slate-50 border rounded text-[10px] font-bold"><input type="checkbox" class="month-pay-checkbox" value="${k}" data-amount="${data.monthsLedger[k].amount}" onchange="calculateLiveSelectedMonthsFee()"><span>${k}(₹${data.monthsLedger[k].amount})</span></label>;
                 }
             });
             document.getElementById('payment-box').classList.remove('hidden');
@@ -376,7 +389,7 @@
                 let remainingDue = 0; Object.values(currentLedger).forEach(v => { if(v.status === "Unpaid") remainingDue += v.amount; });
                 
                 const now = new Date();
-                const stamp = `${now.toLocaleDateString('en-GB')} ${now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
+                const stamp = ${now.toLocaleDateString('en-GB')} ${now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})};
                 const receiptLog = { dateTime: stamp, monthsPaid: checkedItems.join(','), amount: netReceived, dueBalanceAfterTx: remainingDue };
                 
                 await updateDoc(docRef, { monthsLedger: currentLedger, totalDue: remainingDue, transactions: arrayUnion(receiptLog) });
@@ -386,10 +399,6 @@
             } catch(e){}
         }
 
-
-        // ============================================================
-        // PUBLIC SEARCH: BADA POP-UP WITH PROPER TABLE LAYOUT (FIXED)
-        // ============================================================
         window.executePublicSearch = async function() {
             const yr = document.getElementById('search-year').value;
             const cls = document.getElementById('search-class').value;
@@ -410,12 +419,10 @@
                     const s = docSnap.data();
                     if((rollK && s.rollNumber === rollK) || (nameK && s.name.toLowerCase().includes(nameK)) || (!rollK && !nameK)) {
                         
-                        // Calculated totals logic
                         let rowsMarkup = "";
                         let historyRowsMarkup = "";
                         let calculatedOutstandingDues = 0;
 
-                        // 1. Month wise structure data collection loop
                         Object.keys(s.monthsLedger || {}).sort().forEach(k => {
                             const info = s.monthsLedger[k];
                             if(info && info.status !== "None") {
@@ -435,7 +442,6 @@
                             }
                         });
 
-                        // 2. Receipts history loop
                         const txs = s.transactions || [];
                         txs.forEach(t => {
                             historyRowsMarkup += `
@@ -447,7 +453,6 @@
                                 </tr>`;
                         });
 
-                        // Append comprehensive data structure inside modal screen box container
                         htmlChunk += `
                             <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-4 shadow-sm">
                                 
