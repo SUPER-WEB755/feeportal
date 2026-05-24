@@ -8,7 +8,7 @@
     <style>
         input, select { min-height: 40px; }
         
-        /* POPUP MODAL ENHANCEMENT (NO SCROLL PROBLEM) */
+        /* POPUP MODAL ENHANCEMENT */
         .custom-popup-modal {
             display: none;
             position: fixed;
@@ -72,7 +72,7 @@
                 </div>
 
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-                    <h2 class="text-sm font-black text-slate-800 mb-3 uppercase tracking-wider border-b pb-1.5 text-blue-900">⚙️ 2. Add/Assign Dues</h2>
+                    <h2 class="text-sm font-black text-slate-800 mb-3 uppercase tracking-wider border-b pb-1.5 text-blue-900">⚙️ 2. Add/Assign Dues (Multi-Select)</h2>
                     <div class="space-y-2.5">
                         <div class="grid grid-cols-2 gap-2">
                             <select id="dues-year" onchange="loadStudentsForDuesDropdown()" class="p-2 border rounded bg-slate-50 text-xs">
@@ -83,25 +83,28 @@
                             <select id="dues-class" onchange="loadStudentsForDuesDropdown()" class="p-2 border rounded bg-slate-50 text-xs class-dropdown-list"></select>
                         </div>
                         <select id="dues-term" onchange="loadStudentsForDuesDropdown()" class="w-full p-2 border rounded bg-slate-50 text-xs term-dropdown-list"></select>
-                        <select id="dues-student-select" class="w-full p-2 border border-blue-300 rounded bg-blue-50 text-xs font-bold text-blue-900">
+                        
+                        <select id="dues-student-select" onchange="fetchAndShowLiveStudentDuesPreview()" class="w-full p-2 border border-blue-300 rounded bg-blue-50 text-xs font-bold text-blue-900">
                             <option value="">-- Select Student --</option>
                         </select>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-500">Month</label>
-                                <select id="dues-month-target" class="w-full p-2 border rounded bg-slate-50 text-xs">
-                                    <option>January</option><option>February</option><option>March</option>
-                                    <option>April</option><option>May</option><option>June</option>
-                                    <option>July</option><option>August</option><option>September</option>
-                                    <option>October</option><option>November</option><option>December</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-500">Amount (₹)</label>
-                                <input type="number" id="dues-amount" placeholder="300" class="w-full p-2 border rounded text-xs">
-                            </div>
+                        
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 mb-1">Select Months/Fees to Apply:</label>
+                            <div id="assign-dues-checkbox-grid" class="grid grid-cols-2 gap-1.5 bg-slate-50 p-2 border rounded max-h-40 overflow-y-auto text-[11px] font-medium">
+                                </div>
                         </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500">Amount to Apply (₹) [Same for all selected items]</label>
+                            <input type="number" id="dues-amount" placeholder="300" class="w-full p-2 border rounded text-xs">
+                        </div>
+
                         <button onclick="addMonthlyFeeToStudent()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded text-xs shadow cursor-pointer">➕ Update Fee Balance</button>
+                        
+                        <div id="dues-live-preview-box" class="mt-3 p-2 bg-slate-50 rounded-lg border hidden text-[11px] space-y-2">
+                            <p class="font-bold text-slate-700 border-b pb-1">📊 Live Student Status Preview:</p>
+                            <div id="dues-preview-list" class="max-h-32 overflow-y-auto space-y-1"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -133,7 +136,7 @@
                             </div>
                             
                             <div class="bg-blue-50 p-3 rounded-xl border border-blue-200 space-y-2.5">
-                                <div id="pay-months-checkboxes" class="grid grid-cols-2 gap-1.5 max-h-24 overflow-y-auto bg-white p-2 border rounded"></div>
+                                <div id="pay-months-checkboxes" class="grid grid-cols-2 gap-1.5 max-h-32 overflow-y-auto bg-white p-2 border rounded"></div>
                                 <div class="grid grid-cols-3 gap-2">
                                     <div>
                                         <label class="block text-[10px] font-bold text-slate-500">Gross (₹)</label>
@@ -163,7 +166,7 @@
     <div id="teacher-lock-notice" class="max-w-xs mx-auto my-12 bg-white p-6 rounded-xl shadow-md border text-center space-y-2">
         <span class="text-3xl">🔒</span>
         <h3 class="text-sm font-bold text-slate-700">Admin Section Locked</h3>
-        <p class="text-[11px] text-gray-400">Teacher Panel open karne ke liye upar diye gaye <b>Teacher Login</b> button ka use karein.</p>
+        <p class="text-[11px] text-gray-400">Teacher Panel open karne ke liye upar gaye <b>Teacher Login</b> button ka use karein.</p>
     </div>
 
     <div id="loginModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs justify-center items-center p-4 z-50 hidden">
@@ -177,7 +180,7 @@
 
 
     <div id="publicSearchModal" class="custom-popup-modal">
-        <div class="bg-white rounded-2xl max-w-3xl w-full p-4 md:p-6 shadow-2xl relative flex flex-col max-h-[90vh] border border-slate-300">
+        <div class="bg-white rounded-2xl max-w-3xl w-full p-4 md:p-6 shadow-2xl relative flex flex-col max-h-[95vh] border border-slate-300">
             
             <button onclick="closePublicSearchModal()" class="absolute top-3 right-3 bg-slate-100 hover:bg-red-100 text-slate-500 hover:text-red-700 w-8 h-8 rounded-full flex items-center justify-center font-black text-xl cursor-pointer shadow-sm">&times;</button>
             
@@ -231,10 +234,13 @@
         let selectedStudentId = null;
         let selectedStudentData = null;
         const b64_token = "U3VwZXJAMjAyNg=="; // Password: Super@2026
-        const MASTER_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        
+        // Comprehensive Fee Matrix Array Control
+        const MASTER_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December", "Exam Fee", "Registration Fee"];
 
         window.addEventListener('DOMContentLoaded', () => {
             populateDropdownLists();
+            renderDuesAssignCheckboxGrid();
             openPublicSearchModal();
             applyAuthView(false);
         });
@@ -247,6 +253,22 @@
                 d.innerHTML = ""; ["First Term", "Second Term", "Third Term", "Fourth Term", "Fifth Term", "Sixth Term"].forEach((t, i) => {
                     d.innerHTML += `<option value="Term ${i+1}">${t}</option>`;
                 });
+            });
+        }
+
+        // Renders checkboxes for panel 2 so teacher can pick both Month and Exam Fee together
+        function renderDuesAssignCheckboxGrid() {
+            const grid = document.getElementById('assign-dues-checkbox-grid');
+            grid.innerHTML = "";
+            MASTER_MONTHS.forEach(item => {
+                let displayLabel = item;
+                if(item === "Exam Fee") displayLabel = "📋 Exam Fee";
+                if(item === "Registration Fee") displayLabel = "🔑 Registr. Fee";
+                
+                grid.innerHTML += `<label class="flex items-center gap-1.5 p-1 bg-white border rounded shadow-2xs cursor-pointer hover:bg-slate-100">
+                    <input type="checkbox" class="assign-dues-target-cb" value="${item}">
+                    <span class="truncate">${displayLabel}</span>
+                </label>`;
             });
         }
 
@@ -285,6 +307,7 @@
             const cls = document.getElementById('dues-class').value;
             const trm = document.getElementById('dues-term').value;
             const drop = document.getElementById('dues-student-select');
+            document.getElementById('dues-live-preview-box').classList.add('hidden');
             drop.innerHTML = "<option value=''>Loading Profiles...</option>";
             try {
                 const q = query(collection(db, "students"), where("year", "==", yr), where("class", "==", cls), where("term", "==", trm));
@@ -292,6 +315,33 @@
                 if(snap.empty) { drop.innerHTML = "<option value=''>No profiles registered here.</option>"; return; }
                 drop.innerHTML = "<option value=''>-- Select Student --</option>";
                 snap.forEach(d => { drop.innerHTML += `<option value="${d.id}">${d.data().name} (ID: ${d.data().rollNumber})</option>`; });
+            } catch(e){}
+        }
+
+        window.fetchAndShowLiveStudentDuesPreview = async function() {
+            const sId = document.getElementById('dues-student-select').value;
+            const previewBox = document.getElementById('dues-live-preview-box');
+            const previewList = document.getElementById('dues-preview-list');
+            if(!sId) { previewBox.classList.add('hidden'); return; }
+            
+            try {
+                const snap = await getDoc(doc(db, "students", sId));
+                if(!snap.exists()) return;
+                const data = snap.data();
+                let previewHtml = "";
+                
+                Object.keys(data.monthsLedger || {}).forEach(k => {
+                    const info = data.monthsLedger[k];
+                    if(info && info.status !== "None") {
+                        const isUnpaid = info.status === "Unpaid";
+                        previewHtml += `<div class="flex justify-between items-center border-b py-0.5">
+                            <span class="font-medium">${k}</span>
+                            <span class="${isUnpaid ? 'text-red-600 font-bold' : 'text-green-600 font-bold'}">${info.status} (₹${info.amount})</span>
+                        </div>`;
+                    }
+                });
+                previewList.innerHTML = previewHtml || "<span class='text-gray-400'>No fees assigned yet.</span>";
+                previewBox.classList.remove('hidden');
             } catch(e){}
         }
 
@@ -314,23 +364,45 @@
             } catch(e){ alert("Database connection fault."); }
         }
 
+        // UPDATED: Process checkboxes and update multiple fees/months at once
         window.addMonthlyFeeToStudent = async function() {
             const sId = document.getElementById('dues-student-select').value;
-            const month = document.getElementById('dues-month-target').value;
             const mFee = parseFloat(document.getElementById('dues-amount').value) || 0;
-            if(!sId || mFee <= 0) { alert("Select student and amount properly."); return; }
+            
+            let selectedItems = [];
+            document.querySelectorAll('.assign-dues-target-cb').forEach(cb => {
+                if(cb.checked) selectedItems.push(cb.value);
+            });
+
+            if(!sId || selectedItems.length === 0 || mFee <= 0) {
+                alert("Please select student, check at least one box, and type valid amount.");
+                return;
+            }
+
             try {
                 const docRef = doc(db, "students", sId);
                 const snap = await getDoc(docRef);
                 if(!snap.exists()) return;
+                
                 let monthsLedger = snap.data().monthsLedger || {};
-                monthsLedger[month] = { status: "Unpaid", amount: mFee };
-                let totalDue = 0; Object.values(monthsLedger).forEach(v => { if(v.status === "Unpaid") totalDue += v.amount; });
+                
+                // Loops through checked entries
+                selectedItems.forEach(item => {
+                    monthsLedger[item] = { status: "Unpaid", amount: mFee };
+                });
+
+                let totalDue = 0; 
+                Object.values(monthsLedger).forEach(v => { if(v.status === "Unpaid") totalDue += v.amount; });
+                
                 await updateDoc(docRef, { monthsLedger, totalDue });
-                alert("Success: Fees added!");
+                alert(`Success: ${selectedItems.length} Fee item(s) updated!`);
+                
+                // Clear state
                 document.getElementById('dues-amount').value = '';
-                loadStudentsForDuesDropdown();
-            } catch(e){}
+                document.querySelectorAll('.assign-dues-target-cb').forEach(cb => cb.checked = false);
+                
+                fetchAndShowLiveStudentDuesPreview();
+            } catch(e){ alert("Database connection error!"); }
         }
 
         window.loadStudentsForPayment = async function() {
@@ -362,7 +434,7 @@
             const cbBox = document.getElementById('pay-months-checkboxes'); cbBox.innerHTML = "";
             Object.keys(data.monthsLedger || {}).forEach(k => {
                 if(data.monthsLedger[k].status === "Unpaid") {
-                    cbBox.innerHTML += `<label class="flex items-center gap-1 p-1 bg-slate-50 border rounded text-[10px] font-bold"><input type="checkbox" class="month-pay-checkbox" value="${k}" data-amount="${data.monthsLedger[k].amount}" onchange="calculateLiveSelectedMonthsFee()"><span>${k}(₹${data.monthsLedger[k].amount})</span></label>`;
+                    cbBox.innerHTML += `<label class="flex items-center gap-1 p-1 bg-slate-50 border rounded text-[10px] font-bold cursor-pointer"><input type="checkbox" class="month-pay-checkbox" value="${k}" data-amount="${data.monthsLedger[k].amount}" onchange="calculateLiveSelectedMonthsFee()"><span>${k}(₹${data.monthsLedger[k].amount})</span></label>`;
                 }
             });
             document.getElementById('payment-box').classList.remove('hidden');
@@ -379,7 +451,7 @@
         window.submitFeePayment = async function() {
             if(!selectedStudentId) return;
             let checkedItems = []; document.querySelectorAll('.month-pay-checkbox').forEach(cb => { if(cb.checked) checkedItems.push(cb.value); });
-            if(checkedItems.length === 0) { alert("No months selected!"); return; }
+            if(checkedItems.length === 0) { alert("No items selected!"); return; }
             const concession = parseFloat(document.getElementById('pay-concession-input').value) || 0;
             const netReceived = parseFloat(document.getElementById('pay-amount-input').value) || 0;
             try {
@@ -422,12 +494,16 @@
                         let rowsMarkup = "";
                         let historyRowsMarkup = "";
                         let calculatedOutstandingDues = 0;
+                        let unpaidMonthsList = []; // Track names of unpaid fees
 
-                        Object.keys(s.monthsLedger || {}).sort().forEach(k => {
+                        Object.keys(s.monthsLedger || {}).forEach(k => {
                             const info = s.monthsLedger[k];
                             if(info && info.status !== "None") {
                                 const isUnpaid = info.status === "Unpaid";
-                                if(isUnpaid) calculatedOutstandingDues += info.amount;
+                                if(isUnpaid) {
+                                    calculatedOutstandingDues += info.amount;
+                                    unpaidMonthsList.push(k); // Adding specific item name
+                                }
                                 
                                 rowsMarkup += `
                                     <tr class="border-b border-slate-100">
@@ -453,12 +529,18 @@
                                 </tr>`;
                         });
 
+                        // Dynamic calculation string formulation logic
+                        const monthsString = unpaidMonthsList.length > 0 ? `(${unpaidMonthsList.join(', ')})` : '(No Dues)';
+
                         htmlChunk += `
                             <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-4 shadow-sm">
                                 
                                 <div class="bg-gradient-to-r from-red-600 to-rose-700 text-white p-3 rounded-xl text-center shadow-sm">
                                     <p class="text-[10px] uppercase font-bold opacity-80 tracking-wider">Net Outstanding Balance (कुल बकाया फीस)</p>
-                                    <h4 class="text-3xl font-black mt-0.5">₹${calculatedOutstandingDues}</h4>
+                                    <h4 class="text-2xl md:text-3xl font-black mt-0.5">₹${calculatedOutstandingDues}</h4>
+                                    <p class="text-[11px] font-medium bg-black/20 rounded py-1 px-2 mt-1.5 inline-block max-w-full truncate">
+                                        📌 ${monthsString}
+                                    </p>
                                 </div>
 
                                 <div class="bg-white p-2.5 rounded-xl border text-xs">
@@ -472,13 +554,13 @@
                                         <table class="w-full text-left text-xs">
                                             <thead>
                                                 <tr class="bg-slate-800 text-white font-bold text-[11px]">
-                                                    <th class="p-2">Fee Month</th>
+                                                    <th class="p-2">Fee Month / Type</th>
                                                     <th class="p-2 text-center">Status</th>
                                                     <th class="p-2 text-right">Rate</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                ${rowsMarkup || '<tr><td colspan="3" class="p-3 text-center text-gray-400 italic">No monthly schedules active.</td></tr>'}
+                                                ${rowsMarkup || '<tr><td colspan="3" class="p-3 text-center text-gray-400 italic">No schedules active.</td></tr>'}
                                             </tbody>
                                         </table>
                                     </div>
@@ -512,4 +594,5 @@
     </script>
 </body>
 </html>
+
 
