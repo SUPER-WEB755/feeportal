@@ -241,11 +241,11 @@
 
         function populateDropdownLists() {
             document.querySelectorAll('.class-dropdown-list').forEach(d => {
-                d.innerHTML = ""; for(let i=1; i<=10; i++) d.innerHTML += <option value="Class ${i}">Class ${i}</option>;
+                d.innerHTML = ""; for(let i=1; i<=10; i++) d.innerHTML += `<option value="Class ${i}">Class ${i}</option>`;
             });
             document.querySelectorAll('.term-dropdown-list').forEach(d => {
                 d.innerHTML = ""; ["First Term", "Second Term", "Third Term", "Fourth Term", "Fifth Term", "Sixth Term"].forEach((t, i) => {
-                    d.innerHTML += <option value="Term ${i+1}">${t}</option>;
+                    d.innerHTML += `<option value="Term ${i+1}">${t}</option>`;
                 });
             });
         }
@@ -291,7 +291,7 @@
                 const snap = await getDocs(q);
                 if(snap.empty) { drop.innerHTML = "<option value=''>No profiles registered here.</option>"; return; }
                 drop.innerHTML = "<option value=''>-- Select Student --</option>";
-                snap.forEach(d => { drop.innerHTML += <option value="${d.id}">${d.data().name} (ID: ${d.data().rollNumber})</option>; });
+                snap.forEach(d => { drop.innerHTML += `<option value="${d.id}">${d.data().name} (ID: ${d.data().rollNumber})</option>`; });
             } catch(e){}
         }
 
@@ -305,7 +305,7 @@
 
             if(!name || !roll) { alert("Fields incomplete!"); return; }
             try {
-                const docId = ${yr}_${cls}_${roll}.replace(/\s+/g, '');
+                const docId = `${yr}_${cls}_${roll}`.replace(/\s+/g, '');
                 let monthsLedger = {}; MASTER_MONTHS.forEach(m => { monthsLedger[m] = { status: "None", amount: 0 }; });
                 await setDoc(doc(db, "students", docId), { name, fatherName: fat, rollNumber: roll, class: cls, term: trm, year: yr, totalDue: 0, monthsLedger, transactions: [] });
                 alert("Success: Student saved!");
@@ -348,7 +348,7 @@
                     const s = d.data();
                     const b = document.createElement('button');
                     b.className = "w-full text-left p-2 rounded bg-white hover:bg-blue-50 mb-1 border flex justify-between items-center text-xs font-bold cursor-pointer";
-                    b.innerHTML = <div><p>${s.name}</p><span class="text-[10px] text-gray-400">ID: ${s.rollNumber}</span></div><span class="text-red-600">₹${s.totalDue}</span>;
+                    b.innerHTML = `<div><p>${s.name}</p><span class="text-[10px] text-gray-400">ID: ${s.rollNumber}</span></div><span class="text-red-600">₹${s.totalDue}</span>`;
                     b.onclick = () => selectStudentForPaymentPanel(d.id, s);
                     div.appendChild(b);
                 });
@@ -358,11 +358,11 @@
         function selectStudentForPaymentPanel(id, data) {
             selectedStudentId = id; selectedStudentData = data;
             document.getElementById('pay-student-title').innerText = data.name;
-            document.getElementById('pay-student-meta').innerText = ID: ${data.rollNumber} | Class: ${data.class};
+            document.getElementById('pay-student-meta').innerText = `ID: ${data.rollNumber} | Class: ${data.class}`;
             const cbBox = document.getElementById('pay-months-checkboxes'); cbBox.innerHTML = "";
             Object.keys(data.monthsLedger || {}).forEach(k => {
                 if(data.monthsLedger[k].status === "Unpaid") {
-                    cbBox.innerHTML += <label class="flex items-center gap-1 p-1 bg-slate-50 border rounded text-[10px] font-bold"><input type="checkbox" class="month-pay-checkbox" value="${k}" data-amount="${data.monthsLedger[k].amount}" onchange="calculateLiveSelectedMonthsFee()"><span>${k}(₹${data.monthsLedger[k].amount})</span></label>;
+                    cbBox.innerHTML += `<label class="flex items-center gap-1 p-1 bg-slate-50 border rounded text-[10px] font-bold"><input type="checkbox" class="month-pay-checkbox" value="${k}" data-amount="${data.monthsLedger[k].amount}" onchange="calculateLiveSelectedMonthsFee()"><span>${k}(₹${data.monthsLedger[k].amount})</span></label>`;
                 }
             });
             document.getElementById('payment-box').classList.remove('hidden');
@@ -389,7 +389,7 @@
                 let remainingDue = 0; Object.values(currentLedger).forEach(v => { if(v.status === "Unpaid") remainingDue += v.amount; });
                 
                 const now = new Date();
-                const stamp = ${now.toLocaleDateString('en-GB')} ${now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})};
+                const stamp = `${now.toLocaleDateString('en-GB')} ${now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
                 const receiptLog = { dateTime: stamp, monthsPaid: checkedItems.join(','), amount: netReceived, dueBalanceAfterTx: remainingDue };
                 
                 await updateDoc(docRef, { monthsLedger: currentLedger, totalDue: remainingDue, transactions: arrayUnion(receiptLog) });
@@ -512,3 +512,4 @@
     </script>
 </body>
 </html>
+
