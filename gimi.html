@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Educated Class - Advanced Fee Portal</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        input, select { min-height: 40px; }
+        
+        /* POPUP MODAL ENHANCEMENT (NO SCROLL PROBLEM) */
+        .custom-popup-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(6px);
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+        }
+        .modal-body-scroll {
+            max-height: calc(85vh - 120px);
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 font-sans min-h-screen text-slate-900">
+
+    <header class="bg-blue-900 text-white py-5 px-4 shadow-md text-center">
+        <h1 class="text-2xl md:text-3xl font-black tracking-wide">SUPER EDUCATED CLASS</h1>
+        <p class="text-xs opacity-90 mt-1">Shekhpur Daud, Azamgarh, Uttar Pradesh</p>
+        <div class="mt-4 flex flex-wrap justify-center gap-2">
+            <button onclick="openPublicSearchModal()" class="bg-amber-400 hover:bg-amber-500 text-blue-950 font-black py-2 px-5 rounded-lg shadow text-xs cursor-pointer transition-all">
+                🔍 Check Fee Status (फीस चेक करें)
+            </button>
+            <button id="auth-action-btn" onclick="toggleTeacherLoginModal()" class="bg-white/10 hover:bg-white/20 text-white font-bold py-2 px-5 rounded-lg text-xs cursor-pointer transition-all border border-white/20">
+                🔐 Teacher Login
+            </button>
+        </div>
+    </header>
+
+    <div id="teacher-panel-container" class="hidden">
+        <div class="bg-emerald-600 text-white p-2.5 text-center text-xs font-bold flex justify-center items-center gap-3 shadow-inner">
+            <span>🔓 SEC Admin Teacher Session Active (टीचर पैनल चालू है)</span>
+            <button onclick="logoutTeacher()" class="bg-red-700 hover:bg-red-800 text-white text-[11px] px-2.5 py-1 rounded font-medium cursor-pointer">Logout</button>
+        </div>
+        
+        <main class="max-w-7xl mx-auto p-4 grid grid-cols-1 lg:grid-cols-3 gap-5">
+            <div class="space-y-5 lg:col-span-1">
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                    <h2 class="text-sm font-black text-slate-800 mb-3 uppercase tracking-wider border-b pb-1.5 text-blue-900">👤 1. Add Student</h2>
+                    <div class="space-y-2.5">
+                        <input type="text" id="stud-name" placeholder="Student's Name" class="w-full p-2 border rounded text-xs bg-slate-50">
+                        <input type="text" id="stud-father" placeholder="Father's Name" class="w-full p-2 border rounded text-xs bg-slate-50">
+                        <input type="text" id="stud-roll" placeholder="Roll Number / ID" class="w-full p-2 border rounded text-xs bg-slate-50">
+                        <div class="grid grid-cols-2 gap-2">
+                            <select id="stud-class" class="p-2 border rounded bg-slate-50 text-xs class-dropdown-list"></select>
+                            <select id="stud-term" class="p-2 border rounded bg-slate-50 text-xs term-dropdown-list"></select>
+                        </div>
+                        <select id="stud-year" class="w-full p-2 border rounded bg-slate-50 text-xs"><option>2026</option><option>2027</option></select>
+                        <button onclick="addNewStudent()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded text-xs shadow cursor-pointer">Save Student Record</button>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                    <h2 class="text-sm font-black text-slate-800 mb-3 uppercase tracking-wider border-b pb-1.5 text-blue-900">⚙️ 2. Add/Assign Dues</h2>
+                    <div class="space-y-2.5">
+                        <div class="grid grid-cols-2 gap-2">
+                            <select id="dues-year" onchange="loadStudentsForDuesDropdown()" class="p-2 border rounded bg-slate-50 text-xs"><option>2026</option><option>2027</option></select>
+                            <select id="dues-class" onchange="loadStudentsForDuesDropdown()" class="p-2 border rounded bg-slate-50 text-xs class-dropdown-list"></select>
+                        </div>
+                        <select id="dues-term" onchange="loadStudentsForDuesDropdown()" class="w-full p-2 border rounded bg-slate-50 text-xs term-dropdown-list"></select>
+                        <select id="dues-student-select" class="w-full p-2 border border-blue-300 rounded bg-blue-50 text-xs font-bold text-blue-900">
+                            <option value="">-- Select Student --</option>
+                        </select>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500">Month</label>
+                                <select id="dues-month-target" class="w-full p-2 border rounded bg-slate-50 text-xs">
+                                    <option>January</option><option>February</option><option>March</option>
+                                    <option>April</option><option>May</option><option>June</option>
+                                    <option>July</option><option>August</option><option>September</option>
+                                    <option>October</option><option>November</option><option>December</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500">Amount (₹)</label>
+                                <input type="number" id="dues-amount" placeholder="300" class="w-full p-2 border rounded text-xs">
+                            </div>
+                        </div>
+                        <button onclick="addMonthlyFeeToStudent()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded text-xs shadow cursor-pointer">➕ Update Fee Balance</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 space-y-5">
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                    <h2 class="text-sm font-black text-slate-800 mb-3 uppercase tracking-wider border-b pb-1.5 text-blue-900">💳 3. Collect & Submit Student Fees</h2>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-3 bg-slate-50 p-2.5 rounded-lg border">
+                        <select id="collect-year" class="p-1.5 border rounded text-xs bg-white"><option>2026</option><option>2027</option></select>
+                        <select id="collect-class" class="p-1.5 border rounded text-xs bg-white class-dropdown-list"></select>
+                        <select id="collect-term" class="p-1.5 border rounded text-xs bg-white term-dropdown-list"></select>
+                        <button onclick="loadStudentsForPayment()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1.5 rounded text-xs cursor-pointer">Fetch List</button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                        <div class="md:col-span-2 border rounded-lg p-2 max-h-96 overflow-y-auto bg-slate-50">
+                            <div id="collect-students-list" class="space-y-1 text-center py-4 text-xs text-gray-400">Click Fetch List...</div>
+                        </div>
+
+                        <div id="payment-box" class="md:col-span-3 border rounded-lg p-3 bg-white hidden space-y-3.5">
+                            <div>
+                                <h3 id="pay-student-title" class="font-black text-blue-950 text-base">Student Name</h3>
+                                <p id="pay-student-meta" class="text-[11px] text-gray-500 font-medium">Roll No: --</p>
+                            </div>
+                            
+                            <div class="bg-blue-50 p-3 rounded-xl border border-blue-200 space-y-2.5">
+                                <div id="pay-months-checkboxes" class="grid grid-cols-2 gap-1.5 max-h-24 overflow-y-auto bg-white p-2 border rounded"></div>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-500">Gross (₹)</label>
+                                        <input type="number" id="pay-total-selected-hidden" readonly class="w-full p-2 border bg-slate-100 rounded text-xs mt-1 font-bold">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-emerald-700">Concession (₹)</label>
+                                        <input type="number" id="pay-concession-input" value="0" oninput="calculateLiveSelectedMonthsFee()" class="w-full p-2 border border-emerald-300 bg-emerald-50 rounded text-xs mt-1 font-black">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-blue-900">Net Collect (₹)</label>
+                                        <input type="number" id="pay-amount-input" class="w-full p-2 border border-blue-400 bg-white rounded text-xs mt-1 font-black">
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <select id="pay-mode" class="w-full p-1.5 border rounded text-xs bg-white"><option>Cash</option><option>Online</option></select>
+                                    <button onclick="submitFeePayment()" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-black py-2 rounded text-xs shadow cursor-pointer">Submit Pay</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="teacher-lock-notice" class="max-w-xs mx-auto my-12 bg-white p-6 rounded-xl shadow-md border text-center space-y-2">
+        <span class="text-3xl">🔒</span>
+        <h3 class="text-sm font-bold text-slate-700">Admin Section Locked</h3>
+        <p class="text-[11px] text-gray-400">Teacher Panel open karne ke liye upar diye gaye <b>Teacher Login</b> button ka use karein.</p>
+    </div>
+
+    <div id="loginModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs justify-center items-center p-4 z-50 hidden">
+        <div class="bg-white rounded-xl max-w-xs w-full p-5 shadow-2xl relative">
+            <button onclick="toggleTeacherLoginModal()" class="absolute top-2 right-3 text-gray-400 hover:text-black font-bold text-lg cursor-pointer">&times;</button>
+            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3">🔑 Teacher Credentials</h3>
+            <input type="password" id="teacher-password-input" placeholder="Enter Password" class="w-full p-2 border rounded text-xs bg-slate-50">
+            <button onclick="verifyTeacherLogin()" class="w-full bg-blue-700 text-white font-bold py-2 rounded text-xs mt-2.5 cursor-pointer">Access Dashboard</button>
+        </div>
+    </div>
+
+
+    <div id="publicSearchModal" class="custom-popup-modal">
+        <div class="bg-white rounded-2xl max-w-3xl w-full p-4 md:p-6 shadow-2xl relative flex flex-col max-h-[90vh] border border-slate-300">
+            
+            <button onclick="closePublicSearchModal()" class="absolute top-3 right-3 bg-slate-100 hover:bg-red-100 text-slate-500 hover:text-red-700 w-8 h-8 rounded-full flex items-center justify-center font-black text-xl cursor-pointer shadow-sm">&times;</button>
+            
+            <div class="text-center mb-4 border-b pb-2">
+                <h3 class="text-lg md:text-xl font-black text-blue-900">🎓 SEC Live Student Desk</h3>
+                <p class="text-[11px] text-slate-400 font-semibold uppercase mt-0.5">Realtime Fee Status Inquiry Window</p>
+            </div>
+
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-2.5 shadow-inner">
+                <div class="grid grid-cols-3 gap-2">
+                    <select id="search-year" class="p-2 border bg-white rounded font-bold"><option>2026</option><option>2027</option></select>
+                    <select id="search-class" class="p-2 border bg-white rounded class-dropdown-list font-bold"></select>
+                    <select id="search-term" class="p-2 border bg-white rounded term-dropdown-list font-bold"></select>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <input type="text" id="search-name" placeholder="Search by Name..." class="p-2 border bg-white rounded">
+                    <input type="text" id="search-roll" placeholder="OR Search Roll Number (e.g. 8)" class="p-2 border bg-white rounded font-bold text-blue-900">
+                </div>
+                <button onclick="executePublicSearch()" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-black py-2 rounded text-xs uppercase tracking-wider cursor-pointer">
+                    🚀 Run Live Verification Search / विवरण चेक करें
+                </button>
+            </div>
+
+            <div id="search-modal-results" class="modal-body-scroll mt-4 space-y-4 pr-1 hidden">
+                </div>
+        </div>
+    </div>
+
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, query, where, arrayUnion } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Firebase Configuration Registry Connection Blocks
+        const firebaseConfig = {
+          apiKey: "AIzaSyAw_f7ew1GMy5HhL9Io-i7zfA3mOQSpn2s",
+          authDomain: "super-educated-class.firebaseapp.com",
+          databaseURL: "https://super-educated-class-default-rtdb.firebaseio.com",
+          projectId: "super-educated-class",
+          storageBucket: "super-educated-class.firebasestorage.app",
+          messagingSenderId: "993892326574",
+          appId: "1:993892326574:web:356ca4361c718aff4da13f"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let selectedStudentId = null;
+        let selectedStudentData = null;
+        const b64_token = "U3VwZXJAMjAyNg=="; // Super@2026
+        const MASTER_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            populateDropdownLists();
+            openPublicSearchModal();
+            applyAuthView(false);
+        });
+
+        function populateDropdownLists() {
+            document.querySelectorAll('.class-dropdown-list').forEach(d => {
+                d.innerHTML = ""; for(let i=1; i<=10; i++) d.innerHTML += `<option value="Class ${i}">Class ${i}</option>`;
+            });
+            document.querySelectorAll('.term-dropdown-list').forEach(d => {
+                d.innerHTML = ""; ["First Term", "Second Term", "Third Term", "Fourth Term", "Fifth Term", "Sixth Term"].forEach((t, i) => {
+                    d.innerHTML += `<option value="Term ${i+1}">${t}</option>`;
+                });
+            });
+        }
+
+        // Auth management core controls
+        window.toggleTeacherLoginModal = function() {
+            const m = document.getElementById('loginModal'); m.classList.toggle('hidden'); if(!m.classList.contains('hidden')) m.classList.add('flex');
+        }
+        window.verifyTeacherLogin = function() {
+            if(btoa(document.getElementById('teacher-password-input').value) === b64_token) {
+                document.getElementById('teacher-password-input').value = '';
+                toggleTeacherLoginModal(); applyAuthView(true);
+                loadStudentsForDuesDropdown();
+            } else { alert("Error: Wrong Security Entry Password Pin!"); }
+        }
+        window.logoutTeacher = function() { applyAuthView(false); }
+        function applyAuthView(isLog) {
+            if(isLog) {
+                document.getElementById('teacher-panel-container').classList.remove('hidden');
+                document.getElementById('teacher-lock-notice').classList.add('hidden');
+                document.getElementById('auth-action-btn').innerText = "🔒 Admin Panel Active";
+            } else {
+                document.getElementById('teacher-panel-container').classList.add('hidden');
+                document.getElementById('teacher-lock-notice').classList.remove('hidden');
+                document.getElementById('auth-action-btn').innerText = "🔐 Teacher Login";
+            }
+        }
+
+        window.openPublicSearchModal = function() { 
+            document.getElementById('publicSearchModal').style.display = 'flex'; 
+        }
+        window.closePublicSearchModal = function() { 
+            document.getElementById('publicSearchModal').style.display = 'none'; 
+        }
+
+        // Teacher Actions: Data Writes
+        window.loadStudentsForDuesDropdown = async function() {
+            const yr = document.getElementById('dues-year').value;
+            const cls = document.getElementById('dues-class').value;
+            const trm = document.getElementById('dues-term').value;
+            const drop = document.getElementById('dues-student-select');
+            drop.innerHTML = "<option value=''>Loading Profiles...</option>";
+            try {
+                const q = query(collection(db, "students"), where("year", "==", yr), where("class", "==", cls), where("term", "==", trm));
+                const snap = await getDocs(q);
+                if(snap.empty) { drop.innerHTML = "<option value=''>No profiles registered here.</option>"; return; }
+                drop.innerHTML = "<option value=''>-- Select Student --</option>";
+                snap.forEach(d => { drop.innerHTML += `<option value="${d.id}">${d.data().name} (ID: ${d.data().rollNumber})</option>`; });
+            } catch(e){}
+        }
+
+        window.addNewStudent = async function() {
+            const name = document.getElementById('stud-name').value.trim();
+            const fat = document.getElementById('stud-father').value.trim();
+            const roll = document.getElementById('stud-roll').value.trim();
+            const cls = document.getElementById('stud-class').value;
+            const trm = document.getElementById('stud-term').value;
+            const yr = document.getElementById('stud-year').value;
+
+            if(!name || !roll) { alert("Fields incomplete!"); return; }
+            try {
+                const docId = `${yr}_${cls}_${roll}`.replace(/\s+/g, '');
+                let monthsLedger = {}; MASTER_MONTHS.forEach(m => { monthsLedger[m] = { status: "None", amount: 0 }; });
+                await setDoc(doc(db, "students", docId), { name, fatherName: fat, rollNumber: roll, class: cls, term: trm, year: yr, totalDue: 0, monthsLedger, transactions: [] });
+                alert("Success: Student saved!");
+                document.getElementById('stud-name').value = ''; document.getElementById('stud-father').value = ''; document.getElementById('stud-roll').value = '';
+                loadStudentsForDuesDropdown();
+            } catch(e){ alert("Database connection fault."); }
+        }
+
+        window.addMonthlyFeeToStudent = async function() {
+            const sId = document.getElementById('dues-student-select').value;
+            const month = document.getElementById('dues-month-target').value;
+            const mFee = parseFloat(document.getElementById('dues-amount').value) || 0;
+            if(!sId || mFee <= 0) { alert("Select student and amount properly."); return; }
+            try {
+                const docRef = doc(db, "students", sId);
+                const snap = await getDoc(docRef);
+                if(!snap.exists()) return;
+                let monthsLedger = snap.data().monthsLedger || {};
+                monthsLedger[month] = { status: "Unpaid", amount: mFee };
+                let totalDue = 0; Object.values(monthsLedger).forEach(v => { if(v.status === "Unpaid") totalDue += v.amount; });
+                await updateDoc(docRef, { monthsLedger, totalDue });
+                alert("Success: Fees added!");
+                document.getElementById('dues-amount').value = '';
+                loadStudentsForDuesDropdown();
+            } catch(e){}
+        }
+
+        window.loadStudentsForPayment = async function() {
+            const yr = document.getElementById('collect-year').value;
+            const cls = document.getElementById('collect-class').value;
+            const trm = document.getElementById('collect-term').value;
+            const div = document.getElementById('collect-students-list');
+            div.innerHTML = "Syncing Engine Core...";
+            try {
+                const q = query(collection(db, "students"), where("year", "==", yr), where("class", "==", cls), where("term", "==", trm));
+                const snap = await getDocs(q);
+                if(snap.empty) { div.innerHTML = "Zero data found."; return; }
+                div.innerHTML = "";
+                snap.forEach(d => {
+                    const s = d.data();
+                    const b = document.createElement('button');
+                    b.className = "w-full text-left p-2 rounded bg-white hover:bg-blue-50 mb-1 border flex justify-between items-center text-xs font-bold cursor-pointer";
+                    b.innerHTML = `<div><p>${s.name}</p><span class="text-[10px] text-gray-400">ID: ${s.rollNumber}</span></div><span class="text-red-600">₹${s.totalDue}</span>`;
+                    b.onclick = () => selectStudentForPaymentPanel(d.id, s);
+                    div.appendChild(b);
+                });
+            } catch(e){}
+        }
+
+        function selectStudentForPaymentPanel(id, data) {
+            selectedStudentId = id; selectedStudentData = data;
+            document.getElementById('pay-student-title').innerText = data.name;
+            document.getElementById('pay-student-meta').innerText = `ID: ${data.rollNumber} | Class: ${data.class}`;
+            const cbBox = document.getElementById('pay-months-checkboxes'); cbBox.innerHTML = "";
+            Object.keys(data.monthsLedger || {}).forEach(k => {
+                if(data.monthsLedger[k].status === "Unpaid") {
+                    cbBox.innerHTML += `<label class="flex items-center gap-1 p-1 bg-slate-50 border rounded text-[10px] font-bold"><input type="checkbox" class="month-pay-checkbox" value="${k}" data-amount="${data.monthsLedger[k].amount}" onchange="calculateLiveSelectedMonthsFee()"><span>${k}(₹${data.monthsLedger[k].amount})</span></label>`;
+                }
+            });
+            document.getElementById('payment-box').classList.remove('hidden');
+            calculateLiveSelectedMonthsFee();
+        }
+
+        window.calculateLiveSelectedMonthsFee = function() {
+            let baseTotal = 0; document.querySelectorAll('.month-pay-checkbox').forEach(cb => { if(cb.checked) baseTotal += parseFloat(cb.getAttribute('data-amount')) || 0; });
+            const concession = parseFloat(document.getElementById('pay-concession-input').value) || 0;
+            document.getElementById('pay-total-selected-hidden').value = baseTotal;
+            document.getElementById('pay-amount-input').value = Math.max(0, baseTotal - concession);
+        }
+
+        window.submitFeePayment = async function() {
+            if(!selectedStudentId) return;
+            let checkedItems = []; document.querySelectorAll('.month-pay-checkbox').forEach(cb => { if(cb.checked) checkedItems.push(cb.value); });
+            if(checkedItems.length === 0) { alert("No months selected!"); return; }
+            const concession = parseFloat(document.getElementById('pay-concession-input').value) || 0;
+            const netReceived = parseFloat(document.getElementById('pay-amount-input').value) || 0;
+            try {
+                const docRef = doc(db, "students", selectedStudentId);
+                let currentLedger = { ...selectedStudentData.monthsLedger };
+                checkedItems.forEach(item => { if(currentLedger[item]) currentLedger[item].status = "Paid"; });
+                let remainingDue = 0; Object.values(currentLedger).forEach(v => { if(v.status === "Unpaid") remainingDue += v.amount; });
+                
+                const now = new Date();
+                const stamp = `${now.toLocaleDateString('en-GB')} ${now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
+                const receiptLog = { dateTime: stamp, monthsPaid: checkedItems.join(','), amount: netReceived, dueBalanceAfterTx: remainingDue };
+                
+                await updateDoc(docRef, { monthsLedger: currentLedger, totalDue: remainingDue, transactions: arrayUnion(receiptLog) });
+                alert("Payment Success!");
+                loadStudentsForPayment();
+                document.getElementById('payment-box').classList.add('hidden');
+            } catch(e){}
+        }
+
+
+        // ============================================================
+        // PUBLIC SEARCH: BADA POP-UP WITH PROPER TABLE LAYOUT (FIXED)
+        // ============================================================
+        window.executePublicSearch = async function() {
+            const yr = document.getElementById('search-year').value;
+            const cls = document.getElementById('search-class').value;
+            const trm = document.getElementById('search-term').value;
+            const nameK = document.getElementById('search-name').value.trim().toLowerCase();
+            const rollK = document.getElementById('search-roll').value.trim();
+            const resBox = document.getElementById('search-modal-results');
+
+            resBox.innerHTML = "<div class='text-center py-6 text-xs text-indigo-900 font-bold animate-pulse'>🔄 SYNCING LIVE CAMPUS LEDGER...</div>";
+            resBox.classList.remove('hidden');
+
+            try {
+                const q = query(collection(db, "students"), where("year", "==", yr), where("class", "==", cls), where("term", "==", trm));
+                const snap = await getDocs(q);
+                let htmlChunk = "";
+
+                snap.forEach(docSnap => {
+                    const s = docSnap.data();
+                    if((rollK && s.rollNumber === rollK) || (nameK && s.name.toLowerCase().includes(nameK)) || (!rollK && !nameK)) {
+                        
+                        // Calculated totals logic
+                        let rowsMarkup = "";
+                        let historyRowsMarkup = "";
+                        let calculatedOutstandingDues = 0;
+
+                        // 1. Month wise structure data collection loop
+                        Object.keys(s.monthsLedger || {}).sort().forEach(k => {
+                            const info = s.monthsLedger[k];
+                            if(info && info.status !== "None") {
+                                const isUnpaid = info.status === "Unpaid";
+                                if(isUnpaid) calculatedOutstandingDues += info.amount;
+                                
+                                rowsMarkup += `
+                                    <tr class="border-b border-slate-100">
+                                        <td class="p-2 font-bold text-slate-700">${k}</td>
+                                        <td class="p-2 text-center">
+                                            <span class="px-2 py-0.5 rounded text-[10px] font-black ${isUnpaid ? 'bg-red-50 text-red-700 border border-red-100':'bg-green-50 text-green-700 border border-green-100'}">
+                                                ${info.status}
+                                            </span>
+                                        </td>
+                                        <td class="p-2 text-right font-bold ${isUnpaid ? 'text-red-600':'text-slate-600'}">₹${info.amount}</td>
+                                    </tr>`;
+                            }
+                        });
+
+                        // 2. Receipts history loop
+                        const txs = s.transactions || [];
+                        txs.forEach(t => {
+                            historyRowsMarkup += `
+                                <tr class="border-b border-slate-100 text-[11px]">
+                                    <td class="p-2 font-medium text-slate-800 max-w-[100px] truncate">${t.monthsPaid || '--'}</td>
+                                    <td class="p-2 text-center text-green-600 font-bold">₹${t.amount}</td>
+                                    <td class="p-2 text-center text-red-600 font-bold">₹${t.dueBalanceAfterTx}</td>
+                                    <td class="p-2 text-slate-400 text-[10px]">${t.dateTime || '--'}</td>
+                                </tr>`;
+                        });
+
+                        // Append comprehensive data structure inside modal screen box container
+                        htmlChunk += `
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-4 shadow-sm">
+                                
+                                <div class="bg-gradient-to-r from-red-600 to-rose-700 text-white p-3 rounded-xl text-center shadow-sm">
+                                    <p class="text-[10px] uppercase font-bold opacity-80 tracking-wider">Net Outstanding Balance (कुल बकाया फीस)</p>
+                                    <h4 class="text-3xl font-black mt-0.5">₹${calculatedOutstandingDues}</h4>
+                                </div>
+
+                                <div class="bg-white p-2.5 rounded-xl border text-xs">
+                                    <p class="font-black text-slate-900 text-sm">Student: ${s.name}</p>
+                                    <p class="text-slate-500 font-medium text-[11px] mt-0.5">Roll Ref ID: ${s.rollNumber} | Father's Name: ${s.fatherName || '--'}</p>
+                                </div>
+
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1 tracking-wider">🗓️ Month-wise Fees Table:</p>
+                                    <div class="bg-white border rounded-xl overflow-hidden shadow-2xs">
+                                        <table class="w-full text-left text-xs">
+                                            <thead>
+                                                <tr class="bg-slate-800 text-white font-bold text-[11px]">
+                                                    <th class="p-2">Fee Month</th>
+                                                    <th class="p-2 text-center">Status</th>
+                                                    <th class="p-2 text-right">Rate</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${rowsMarkup || '<tr><td colspan="3" class="p-3 text-center text-gray-400 italic">No monthly schedules active.</td></tr>'}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1 tracking-wider">📋 Recent Deposit Logs:</p>
+                                    <div class="bg-white border rounded-xl overflow-hidden shadow-2xs overflow-x-auto">
+                                        <table class="w-full text-left text-xs min-w-[300px]">
+                                            <thead>
+                                                <tr class="bg-slate-700 text-white font-bold text-[11px]">
+                                                    <th class="p-2">Item Paid</th>
+                                                    <th class="p-2 text-center">Received</th>
+                                                    <th class="p-2 text-center">Remaining</th>
+                                                    <th class="p-2">Timestamp</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${historyRowsMarkup || '<tr><td colspan="4" class="p-3 text-center text-gray-400 italic">No past receipts found.</td></tr>'}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                            </div><hr class="border-dashed border-slate-300 my-2">`;
+                    }
+                });
+                resBox.innerHTML = htmlChunk || "<div class='text-center text-red-600 font-bold py-6 text-xs'>❌ No matching records found.</div>";
+            } catch(e){ resBox.innerHTML = "<div class='text-center text-red-600 font-bold py-6 text-xs'>Error connecting database network.</div>"; }
+        }
+    </script>
+</body>
+</html>
