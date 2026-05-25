@@ -90,12 +90,11 @@
                         
                         <div>
                             <label class="block text-[10px] font-bold text-slate-500 mb-1">Select Months/Fees to Apply:</label>
-                            <div id="assign-dues-checkbox-grid" class="grid grid-cols-2 gap-1.5 bg-slate-50 p-2 border rounded max-h-40 overflow-y-auto text-[11px] font-medium">
-                                </div>
+                            <div id="assign-dues-checkbox-grid" class="grid grid-cols-2 gap-1.5 bg-slate-50 p-2 border rounded max-h-40 overflow-y-auto text-[11px] font-medium"></div>
                         </div>
 
                         <div>
-                            <label class="block text-[10px] font-bold text-slate-500">Amount to Apply (₹) [Same for all selected items]</label>
+                            <label class="block text-[10px] font-bold text-slate-500">Amount to Apply (₹)</label>
                             <input type="number" id="dues-amount" placeholder="300" class="w-full p-2 border rounded text-xs">
                         </div>
 
@@ -125,7 +124,7 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                        <div class="md:col-span-2 border rounded-lg p-2 max-h-96 overflow-y-auto bg-slate-50">
+                        <div class="md:col-span-2 border rounded-lg p-2 max-h-120 overflow-y-auto bg-slate-50">
                             <div id="collect-students-list" class="space-y-1 text-center py-4 text-xs text-gray-400">Click Fetch List...</div>
                         </div>
 
@@ -156,6 +155,26 @@
                                     <button onclick="submitFeePayment()" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-black py-2 rounded text-xs shadow cursor-pointer">Submit Pay</button>
                                 </div>
                             </div>
+
+                            <div class="mt-3">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase mb-1 tracking-wider">📋 Student Deposit Logs (Concession Included):</p>
+                                <div class="border rounded-lg overflow-hidden overflow-x-auto bg-slate-50 max-h-48">
+                                    <table class="w-full text-left text-[11px] min-w-[340px]">
+                                        <thead>
+                                            <tr class="bg-slate-700 text-white font-bold">
+                                                <th class="p-2">Items Paid</th>
+                                                <th class="p-2 text-center">Paid (₹)</th>
+                                                <th class="p-2 text-center text-amber-300">Conc. (₹)</th>
+                                                <th class="p-2 text-center">Remaining</th>
+                                                <th class="p-2">Date Time</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="collector-live-history-rows">
+                                            </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -201,15 +220,14 @@
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <input type="text" id="search-name" placeholder="Search by Name..." class="p-2 border bg-white rounded">
-                    <input type="text" id="search-roll" placeholder="OR Search Roll Number (e.g. 8)" class="p-2 border bg-white rounded font-bold text-blue-900">
+                    <input type="text" id="search-roll" placeholder="OR Search Roll Number" class="p-2 border bg-white rounded font-bold text-blue-900">
                 </div>
                 <button onclick="executePublicSearch()" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-black py-2 rounded text-xs uppercase tracking-wider cursor-pointer">
                     🚀 Run Live Verification Search / विवरण Check Karein
                 </button>
             </div>
 
-            <div id="search-modal-results" class="modal-body-scroll mt-4 space-y-4 pr-1 hidden">
-                </div>
+            <div id="search-modal-results" class="modal-body-scroll mt-4 space-y-4 pr-1 hidden"></div>
         </div>
     </div>
 
@@ -233,9 +251,8 @@
 
         let selectedStudentId = null;
         let selectedStudentData = null;
-        const b64_token = "U3VwZXJAMjAyNg=="; // Password: Super@2026
+        const b64_token = "U3VwZXJAMjAyNg=="; 
         
-        // Comprehensive Fee Matrix Array Control
         const MASTER_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December", "Exam Fee", "Registration Fee"];
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -256,7 +273,6 @@
             });
         }
 
-        // Renders checkboxes for panel 2 so teacher can pick both Month and Exam Fee together
         function renderDuesAssignCheckboxGrid() {
             const grid = document.getElementById('assign-dues-checkbox-grid');
             grid.innerHTML = "";
@@ -295,12 +311,8 @@
             }
         }
 
-        window.openPublicSearchModal = function() { 
-            document.getElementById('publicSearchModal').style.display = 'flex'; 
-        }
-        window.closePublicSearchModal = function() { 
-            document.getElementById('publicSearchModal').style.display = 'none'; 
-        }
+        window.openPublicSearchModal = function() { document.getElementById('publicSearchModal').style.display = 'flex'; }
+        window.closePublicSearchModal = function() { document.getElementById('publicSearchModal').style.display = 'none'; }
 
         window.loadStudentsForDuesDropdown = async function() {
             const yr = document.getElementById('dues-year').value;
@@ -364,45 +376,31 @@
             } catch(e){ alert("Database connection fault."); }
         }
 
-        // UPDATED: Process checkboxes and update multiple fees/months at once
         window.addMonthlyFeeToStudent = async function() {
             const sId = document.getElementById('dues-student-select').value;
             const mFee = parseFloat(document.getElementById('dues-amount').value) || 0;
             
             let selectedItems = [];
-            document.querySelectorAll('.assign-dues-target-cb').forEach(cb => {
-                if(cb.checked) selectedItems.push(cb.value);
-            });
+            document.querySelectorAll('.assign-dues-target-cb').forEach(cb => { if(cb.checked) selectedItems.push(cb.value); });
 
             if(!sId || selectedItems.length === 0 || mFee <= 0) {
-                alert("Please select student, check at least one box, and type valid amount.");
-                return;
+                alert("Please select student, check at least one box, and type valid amount."); return;
             }
-
             try {
                 const docRef = doc(db, "students", sId);
                 const snap = await getDoc(docRef);
                 if(!snap.exists()) return;
                 
                 let monthsLedger = snap.data().monthsLedger || {};
-                
-                // Loops through checked entries
-                selectedItems.forEach(item => {
-                    monthsLedger[item] = { status: "Unpaid", amount: mFee };
-                });
+                selectedItems.forEach(item => { monthsLedger[item] = { status: "Unpaid", amount: mFee }; });
 
-                let totalDue = 0; 
-                Object.values(monthsLedger).forEach(v => { if(v.status === "Unpaid") totalDue += v.amount; });
-                
+                let totalDue = 0; Object.values(monthsLedger).forEach(v => { if(v.status === "Unpaid") totalDue += v.amount; });
                 await updateDoc(docRef, { monthsLedger, totalDue });
                 alert(`Success: ${selectedItems.length} Fee item(s) updated!`);
-                
-                // Clear state
                 document.getElementById('dues-amount').value = '';
                 document.querySelectorAll('.assign-dues-target-cb').forEach(cb => cb.checked = false);
-                
                 fetchAndShowLiveStudentDuesPreview();
-            } catch(e){ alert("Database connection error!"); }
+            } catch(e){}
         }
 
         window.loadStudentsForPayment = async function() {
@@ -427,17 +425,42 @@
             } catch(e){}
         }
 
+        // UPDATED: Now dynamically populates the local History table inside Payment section with Concessions
         function selectStudentForPaymentPanel(id, data) {
             selectedStudentId = id; selectedStudentData = data;
             document.getElementById('pay-student-title').innerText = data.name;
             document.getElementById('pay-student-meta').innerText = `ID: ${data.rollNumber} | Class: ${data.class}`;
+            
+            // 1. Generate checkboxes for pending items
             const cbBox = document.getElementById('pay-months-checkboxes'); cbBox.innerHTML = "";
             Object.keys(data.monthsLedger || {}).forEach(k => {
                 if(data.monthsLedger[k].status === "Unpaid") {
                     cbBox.innerHTML += `<label class="flex items-center gap-1 p-1 bg-slate-50 border rounded text-[10px] font-bold cursor-pointer"><input type="checkbox" class="month-pay-checkbox" value="${k}" data-amount="${data.monthsLedger[k].amount}" onchange="calculateLiveSelectedMonthsFee()"><span>${k}(₹${data.monthsLedger[k].amount})</span></label>`;
                 }
             });
+
+            // 2. Render Live History Row inside Collector Portal (WITH CONCESSION INCLUDED!)
+            const historyBody = document.getElementById('collector-live-history-rows');
+            historyBody.innerHTML = "";
+            const txs = data.transactions || [];
+            
+            if(txs.length === 0) {
+                historyBody.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-gray-400 italic">No previous transaction record found for this profile.</td></tr>`;
+            } else {
+                txs.forEach(t => {
+                    historyBody.innerHTML += `
+                        <tr class="border-b border-slate-200 hover:bg-slate-100">
+                            <td class="p-2 font-bold text-slate-800 truncate max-w-[110px]">${t.monthsPaid || '--'}</td>
+                            <td class="p-2 text-center text-green-600 font-bold">₹${t.amount || 0}</td>
+                            <td class="p-2 text-center text-emerald-700 font-black bg-emerald-50">₹${t.concession || 0}</td>
+                            <td class="p-2 text-center text-red-600 font-bold">₹${t.dueBalanceAfterTx || 0}</td>
+                            <td class="p-2 text-slate-500 text-[10px] whitespace-nowrap">${t.dateTime || '--'}</td>
+                        </tr>`;
+                });
+            }
+
             document.getElementById('payment-box').classList.remove('hidden');
+            document.getElementById('pay-concession-input').value = 0;
             calculateLiveSelectedMonthsFee();
         }
 
@@ -452,22 +475,36 @@
             if(!selectedStudentId) return;
             let checkedItems = []; document.querySelectorAll('.month-pay-checkbox').forEach(cb => { if(cb.checked) checkedItems.push(cb.value); });
             if(checkedItems.length === 0) { alert("No items selected!"); return; }
+            
             const concession = parseFloat(document.getElementById('pay-concession-input').value) || 0;
             const netReceived = parseFloat(document.getElementById('pay-amount-input').value) || 0;
+            
             try {
                 const docRef = doc(db, "students", selectedStudentId);
                 let currentLedger = { ...selectedStudentData.monthsLedger };
                 checkedItems.forEach(item => { if(currentLedger[item]) currentLedger[item].status = "Paid"; });
+                
                 let remainingDue = 0; Object.values(currentLedger).forEach(v => { if(v.status === "Unpaid") remainingDue += v.amount; });
                 
                 const now = new Date();
                 const stamp = `${now.toLocaleDateString('en-GB')} ${now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
-                const receiptLog = { dateTime: stamp, monthsPaid: checkedItems.join(','), amount: netReceived, dueBalanceAfterTx: remainingDue };
+                
+                // UPDATED RECEIVED LOG OBJECT INCLUDES CONCESSION STAMP ALWAYS
+                const receiptLog = { 
+                    dateTime: stamp, 
+                    monthsPaid: checkedItems.join(','), 
+                    amount: netReceived, 
+                    concession: concession, // Saved directly to database logs
+                    dueBalanceAfterTx: remainingDue 
+                };
                 
                 await updateDoc(docRef, { monthsLedger: currentLedger, totalDue: remainingDue, transactions: arrayUnion(receiptLog) });
-                alert("Payment Success!");
+                alert("Payment Saved Successfully!");
+                
+                // Refresh views
+                const freshSnap = await getDoc(docRef);
+                if(freshSnap.exists()) selectStudentForPaymentPanel(selectedStudentId, freshSnap.data());
                 loadStudentsForPayment();
-                document.getElementById('payment-box').classList.add('hidden');
             } catch(e){}
         }
 
@@ -494,16 +531,13 @@
                         let rowsMarkup = "";
                         let historyRowsMarkup = "";
                         let calculatedOutstandingDues = 0;
-                        let unpaidMonthsList = []; // Track names of unpaid fees
+                        let unpaidMonthsList = [];
 
                         Object.keys(s.monthsLedger || {}).forEach(k => {
                             const info = s.monthsLedger[k];
                             if(info && info.status !== "None") {
                                 const isUnpaid = info.status === "Unpaid";
-                                if(isUnpaid) {
-                                    calculatedOutstandingDues += info.amount;
-                                    unpaidMonthsList.push(k); // Adding specific item name
-                                }
+                                if(isUnpaid) { calculatedOutstandingDues += info.amount; unpaidMonthsList.push(k); }
                                 
                                 rowsMarkup += `
                                     <tr class="border-b border-slate-100">
@@ -524,12 +558,12 @@
                                 <tr class="border-b border-slate-100 text-[11px]">
                                     <td class="p-2 font-medium text-slate-800 max-w-[100px] truncate">${t.monthsPaid || '--'}</td>
                                     <td class="p-2 text-center text-green-600 font-bold">₹${t.amount}</td>
+                                    <td class="p-2 text-center text-emerald-700 font-bold bg-emerald-50">₹${t.concession || 0}</td>
                                     <td class="p-2 text-center text-red-600 font-bold">₹${t.dueBalanceAfterTx}</td>
                                     <td class="p-2 text-slate-400 text-[10px]">${t.dateTime || '--'}</td>
                                 </tr>`;
                         });
 
-                        // Dynamic calculation string formulation logic
                         const monthsString = unpaidMonthsList.length > 0 ? `(${unpaidMonthsList.join(', ')})` : '(No Dues)';
 
                         htmlChunk += `
@@ -569,17 +603,18 @@
                                 <div>
                                     <p class="text-[10px] font-bold text-slate-400 uppercase mb-1 tracking-wider">📋 Recent Deposit Logs:</p>
                                     <div class="bg-white border rounded-xl overflow-hidden shadow-2xs overflow-x-auto">
-                                        <table class="w-full text-left text-xs min-w-[300px]">
+                                        <table class="w-full text-left text-xs min-w-[360px]">
                                             <thead>
                                                 <tr class="bg-slate-700 text-white font-bold text-[11px]">
                                                     <th class="p-2">Item Paid</th>
                                                     <th class="p-2 text-center">Received</th>
+                                                    <th class="p-2 text-center text-emerald-300">Conc.</th>
                                                     <th class="p-2 text-center">Remaining</th>
                                                     <th class="p-2">Timestamp</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                ${historyRowsMarkup || '<tr><td colspan="4" class="p-3 text-center text-gray-400 italic">No past receipts found.</td></tr>'}
+                                                ${historyRowsMarkup || '<tr><td colspan="5" class="p-3 text-center text-gray-400 italic">No past receipts found.</td></tr>'}
                                             </tbody>
                                         </table>
                                     </div>
@@ -593,6 +628,5 @@
         }
     </script>
 </body>
-</html>
 
 
