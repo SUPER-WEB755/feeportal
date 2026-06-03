@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,20 +6,22 @@
     <title>SEC - Smart Dynamic Ledger Portal</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        input, select { min-height: 42px; }
+        input, select { min-height: 44px; }
+        
+        /* CENTRALIZED POP-UP MODAL ENGINE */
         .custom-popup-modal {
             display: none;
             position: fixed;
             z-index: 9999;
             left: 0; top: 0;
             width: 100%; height: 100%;
-            background-color: rgba(15, 23, 42, 0.8);
+            background-color: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(8px);
             align-items: center; justify-content: center;
-            padding: 8px;
+            padding: 12px;
         }
         .modal-body-scroll {
-            max-height: calc(90vh - 140px);
+            max-height: calc(85vh - 100px);
             overflow-y: auto;
         }
         
@@ -40,7 +42,7 @@
 
         @media print {
             body { background: white; color: black; margin: 0; padding: 0; }
-            header, #teacher-panel-container, #teacher-lock-notice, #loginModal, .custom-popup-modal, .no-print { 
+            header, #teacher-panel-container, #teacher-lock-notice, #loginModal, .custom-popup-modal, .no-print, .admin-main-btn { 
                 display: none !important; 
             }
             #print-receipt-vane { 
@@ -59,283 +61,366 @@
         }
     </style>
 </head>
-<body class="bg-slate-100 font-sans min-h-screen text-slate-900 antialiased selection:bg-blue-500 selection:text-white">
+<body class="bg-slate-100 font-sans min-h-screen text-slate-900 antialiased selection:bg-blue-500 selection:text-white md:text-base">
 
     <header class="bg-gradient-to-r from-blue-950 to-slate-900 text-white py-6 px-4 shadow-lg text-center">
         <h1 class="text-2xl md:text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-yellow-100">SUPER EDUCATED CLASS</h1>
-        <p class="text-[11px] md:text-xs font-semibold tracking-widest uppercase text-slate-300 mt-1">📌 Advanced Institutional Accounting Engine | Azamgarh</p>
+        <p class="text-[11px] md:text-base font-semibold tracking-widest uppercase text-slate-300 mt-1">📌 Advanced Institutional Accounting Engine | Azamgarh</p>
         
-        <div class="mt-4 flex flex-wrap justify-center gap-2 max-w-md mx-auto">
-            <button onclick="openPublicSearchModal()" class="flex-1 bg-amber-400 hover:bg-amber-500 text-blue-950 font-black py-2.5 px-4 rounded-xl shadow-md text-xs cursor-pointer transition-all">
+        <div class="mt-4 flex flex-wrap justify-center gap-3 max-w-xl mx-auto">
+            <button onclick="openPublicSearchModal()" class="flex-1 bg-amber-400 hover:bg-amber-500 text-blue-950 font-black py-3 px-5 rounded-xl shadow-md text-xs md:text-base cursor-pointer transition-all">
                 🔍 Check Fee Status (फीस check करें)
             </button>
-            <button id="auth-action-btn" onclick="toggleTeacherLoginModal()" class="bg-white/10 hover:bg-white/20 text-white font-bold py-2.5 px-4 rounded-xl text-xs cursor-pointer transition-all border border-white/10">
+            <button id="auth-action-btn" onclick="toggleTeacherLoginModal()" class="bg-white/10 hover:bg-white/20 text-white font-bold py-3 px-5 rounded-xl text-xs md:text-base cursor-pointer transition-all border border-white/10">
                 🔐 Teacher Login
             </button>
         </div>
     </header>
 
     <div id="teacher-panel-container" class="hidden">
-        <div class="bg-emerald-600 text-white p-2 text-center text-xs font-bold flex justify-center items-center gap-3 shadow-inner">
+        <div class="bg-emerald-600 text-white p-3 text-center text-xs md:text-base font-bold flex justify-center items-center gap-4 shadow-inner">
             <span>🔓 SEC Central Ledger Core Engine Active</span>
-            <button onclick="logoutTeacher()" class="bg-slate-950 hover:bg-red-700 text-white text-[10px] px-2.5 py-1 rounded-md font-bold transition-colors">Logout</button>
+            <button onclick="logoutTeacher()" class="bg-slate-950 hover:bg-red-700 text-white text-[10px] md:text-sm px-3 py-1.5 rounded-md font-bold transition-colors">Logout</button>
         </div>
         
-        <main class="max-w-7xl mx-auto p-3 md:p-5 grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            <div class="space-y-6 lg:col-span-1">
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
-                    <h2 class="text-xs font-black text-blue-900 uppercase tracking-wider border-b pb-2 mb-3">👤 1. Add Student</h2>
-                    <div class="space-y-2">
-                        <input type="text" id="stud-name" placeholder="Student's Name" class="w-full p-2.5 border rounded-xl text-xs bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-                        <input type="text" id="stud-father" placeholder="Father's Name" class="w-full p-2.5 border rounded-xl text-xs bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-                        <input type="text" id="stud-roll" placeholder="Roll Number / ID" class="w-full p-2.5 border rounded-xl text-xs bg-slate-50 font-mono font-bold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-                        <div class="grid grid-cols-2 gap-2">
-                            <select id="stud-class" class="p-2 border rounded-xl bg-slate-50 text-xs class-dropdown-list font-bold"></select>
-                            <select id="stud-term" class="p-2 border rounded-xl bg-slate-50 text-xs term-dropdown-list font-bold"></select>
-                        </div>
-                        <select id="stud-year" class="w-full p-2.5 border rounded-xl bg-slate-50 text-xs font-bold">
-                            <option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option>
-                        </select>
-                        <button onclick="addNewStudent()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs shadow-md transition-all">Save Student Profile</button>
-                    </div>
-                </div>
-
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
-                    <h2 class="text-xs font-black text-blue-900 uppercase tracking-wider border-b pb-2 mb-3">⚙️ 2. Add / Allocate Dues</h2>
-                    <div class="space-y-2.5">
-                        <div class="grid grid-cols-2 gap-2">
-                            <select id="dues-year" onchange="loadStudentsForDuesDropdown()" class="p-2 border rounded-xl bg-slate-50 text-xs font-bold">
-                                <option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option>
-                            </select>
-                            <select id="dues-class" onchange="loadStudentsForDuesDropdown()" class="p-2 border rounded-xl bg-slate-50 text-xs class-dropdown-list font-bold"></select>
-                        </div>
-                        <select id="dues-term" onchange="loadStudentsForDuesDropdown()" class="w-full p-2.5 border rounded-xl bg-slate-50 text-xs term-dropdown-list font-bold"></select>
-                        
-                        <select id="dues-student-select" onchange="fetchAndShowLiveStudentDuesPreview()" class="w-full p-2.5 border border-blue-300 rounded-xl bg-blue-50 text-xs font-black text-blue-900 focus:ring-2 focus:ring-blue-600">
-                            <option value="">-- Select Student Profile --</option>
-                        </select>
-                        
-                        <div>
-                            <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Select Targets to Apply:</label>
-                            <div id="assign-dues-checkbox-grid" class="grid grid-cols-2 gap-1 bg-slate-50 p-2 border rounded-xl max-h-36 overflow-y-auto text-[11px]"></div>
-                        </div>
-
-                        <div id="dynamic-amount-inputs-container" class="space-y-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200 hidden">
-                            <p class="text-[10px] font-black text-slate-500 uppercase tracking-wide mb-1">💰 Enter Specified Amounts:</p>
-                            
-                            <div id="box-month-amt" class="hidden">
-                                <label class="block text-[10px] font-bold text-slate-600 uppercase">📅 Monthly Fee Rate (₹)</label>
-                                <input type="number" id="dues-amount-month" placeholder="e.g. 300" class="w-full p-2 border bg-white rounded-lg text-xs font-black">
-                            </div>
-
-                            <div id="box-exam-amt" class="hidden">
-                                <label class="block text-[10px] font-bold text-indigo-900 uppercase">📋 Exam Fee Amount (₹)</label>
-                                <input type="number" id="dues-amount-exam" placeholder="e.g. 150" class="w-full p-2 border border-indigo-200 bg-white rounded-lg text-xs font-black text-indigo-950">
-                            </div>
-
-                            <div id="box-reg-amt" class="hidden">
-                                <label class="block text-[10px] font-bold text-amber-900 uppercase">🔑 Registration Fee Amount (₹)</label>
-                                <input type="number" id="dues-amount-reg" placeholder="e.g. 200" class="w-full p-2 border border-amber-200 bg-white rounded-lg text-xs font-black text-amber-950">
-                            </div>
-                        </div>
-
-                        <button onclick="addMonthlyFeeToStudent()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-2.5 rounded-xl text-xs shadow-md transition-all">➕ Update Outstanding Balance</button>
-                        
-                        <div id="dues-live-preview-box" class="mt-2 p-2 bg-slate-50 rounded-xl border hidden text-[11px] space-y-1.5">
-                            <p class="font-bold text-slate-700 border-b pb-1">📈 Live Mini Ledger Preview:</p>
-                            <div id="dues-preview-list" class="max-h-28 overflow-y-auto space-y-1"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="lg:col-span-2 space-y-6">
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
-                    <h2 class="text-xs font-black text-blue-900 uppercase tracking-wider border-b pb-2 mb-3">💳 3. Collect & Log Payments</h2>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-3 bg-slate-50 p-2 rounded-xl border">
-                        <select id="collect-year" class="p-1.5 border rounded-lg text-xs bg-white font-bold">
-                            <option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option>
-                        </select>
-                        <select id="collect-class" class="p-1.5 border rounded-lg text-xs bg-white class-dropdown-list font-bold"></select>
-                        <select id="collect-term" class="p-1.5 border rounded-lg text-xs bg-white term-dropdown-list font-bold"></select>
-                        <button onclick="loadStudentsForPayment()" class="bg-slate-900 hover:bg-black text-white font-black py-1.5 rounded-lg text-xs transition-colors">Fetch Roster</button>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-5 gap-3.5">
-                        <div class="md:col-span-2 border rounded-xl p-2 max-h-96 overflow-y-auto bg-slate-50">
-                            <div id="collect-students-list" class="space-y-1 text-center py-6 text-xs text-slate-400 font-semibold">Awaiting synchronization parameters...</div>
-                        </div>
-
-                        <div id="payment-box" class="md:col-span-3 border rounded-xl p-3 bg-white hidden space-y-3">
-                            <div>
-                                <h3 id="pay-student-title" class="font-black text-slate-900 text-sm md:text-base">Student Title</h3>
-                                <p id="pay-student-meta" class="text-[11px] text-slate-400 font-semibold">ID: --</p>
-                            </div>
-
-                            <div class="bg-amber-50/70 p-2 rounded-xl border border-amber-200 text-[11px] space-y-1">
-                                <p class="font-black text-amber-900 uppercase text-[10px] tracking-wide">📋 Paile Ka Data (Current Balance Status):</p>
-                                <div id="pay-panel-old-data-view" class="max-h-24 overflow-y-auto bg-white/80 p-1.5 rounded border border-amber-100 space-y-1"></div>
-                            </div>
-                            
-                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
-                                <div id="pay-months-checkboxes" class="grid grid-cols-1 sm:grid-cols-2 gap-1 max-h-28 overflow-y-auto bg-white p-1.5 border rounded-lg"></div>
-                                <div class="grid grid-cols-3 gap-2">
-                                    <div>
-                                        <label class="block text-[9px] font-bold text-slate-400 uppercase">Gross Base</label>
-                                        <input type="number" id="pay-total-selected-hidden" readonly class="w-full p-2 border bg-slate-100 rounded-lg text-xs font-bold mt-0.5">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[9px] font-bold text-emerald-600 uppercase">Concession</label>
-                                        <input type="number" id="pay-concession-input" value="0" oninput="calculateLiveSelectedMonthsFee()" class="w-full p-2 border border-emerald-300 bg-emerald-50 rounded-lg text-xs font-black mt-0.5 text-emerald-800">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[9px] font-bold text-blue-900 uppercase">Net Intake</label>
-                                        <input type="number" id="pay-amount-input" class="w-full p-2 border border-blue-300 bg-white rounded-lg text-xs font-black mt-0.5 text-blue-950">
-                                    </div>
-                                </div>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <select id="pay-mode" class="w-full p-1.5 border rounded-lg text-xs bg-white font-bold"><option>Cash</option><option>Online</option></select>
-                                    <button onclick="submitFeePayment()" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-black py-2 rounded-lg text-xs shadow transition-all">Finalize Receipt</button>
-                                </div>
-                            </div>
-
-                            <div>
-                                <p class="text-[10px] font-black text-slate-400 uppercase mb-1">📋 Historical Payments Ledger:</p>
-                                <div class="border rounded-xl overflow-hidden overflow-x-auto bg-slate-50">
-                                    <table class="w-full text-left text-[11px] min-w-[340px]">
-                                        <thead>
-                                            <tr class="bg-slate-800 text-white font-bold text-[10px]">
-                                                <th class="p-2">TXN ID</th>
-                                                <th class="p-2">Fee Head / Item</th>
-                                                <th class="p-2 text-center">Net Paid (₹)</th>
-                                                <th class="p-2 text-center text-amber-300">Conc (₹)</th>
-                                                <th class="p-2 text-center text-rose-300">Baki Dues (₹)</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="collector-live-history-rows" class="divide-y divide-slate-200"></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 bg-gradient-to-br from-blue-50/20 to-white">
-                    <h2 class="text-xs font-black uppercase tracking-wider border-b pb-2 text-slate-900 mb-3">📊 4. Batch Intelligence & Financial Analytics Desk</h2>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 bg-white p-2 border rounded-xl mb-3">
-                        <div>
-                            <select id="audit-year" class="w-full p-2 border rounded-lg text-xs font-bold bg-slate-50">
-                                <option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option>
-                            </select>
-                        </div>
-                        <div>
-                            <select id="audit-class" class="w-full p-2 border rounded-lg text-xs font-black text-blue-900 bg-slate-50">
-                                <option value="ALL">-- COMBINE ALL CLASSES TOGETHER --</option>
-                                <option value="Class 1">Class 1</option><option value="Class 2">Class 2</option>
-                                <option value="Class 3">Class 3</option><option value="Class 4">Class 4</option>
-                                <option value="Class 5">Class 5</option><option value="Class 6">Class 6</option>
-                                <option value="Class 7">Class 7</option><option value="Class 8">Class 8</option>
-                                <option value="Class 9">Class 9</option><option value="Class 10">Class 10</option>
-                            </select>
-                        </div>
-                        <button onclick="calculateGlobalFinancialAuditMetrics()" class="bg-blue-900 hover:bg-slate-950 text-white font-black py-2 rounded-lg text-xs uppercase tracking-wider transition-all shadow-xs cursor-pointer">
-                            Fetch Global Metrics
-                        </button>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div class="bg-white border p-3 rounded-xl flex items-center space-x-3 shadow-2xs">
-                            <div class="w-9 h-9 rounded-full bg-emerald-100 flex items-center justify-center text-lg">💰</div>
-                            <div>
-                                <span class="block text-[10px] font-bold uppercase text-slate-400">Net Revenue Collected</span>
-                                <h3 id="audit-total-received" class="text-lg md:text-xl font-black text-emerald-700">₹0</h3>
-                            </div>
-                        </div>
-                        <div class="bg-white border p-3 rounded-xl flex items-center space-x-3 shadow-2xs">
-                            <div class="w-9 h-9 rounded-full bg-rose-100 flex items-center justify-center text-lg">🚨</div>
-                            <div>
-                                <span class="block text-[10px] font-bold uppercase text-slate-400">Total Outstandings Dues</span>
-                                <h3 id="audit-total-dues" class="text-lg md:text-xl font-black text-rose-700">₹0</h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-orange-200 bg-orange-50/10">
-                    <h2 class="text-xs font-black text-orange-950 uppercase tracking-wider border-b pb-2 mb-3">✏️ 5. Error Correction Console</h2>
-                    <div class="space-y-2 text-xs">
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2">
-                            <input type="text" id="edit-search-sid" placeholder="Student ID" class="p-2 border rounded-xl font-mono bg-white text-xs">
-                            <input type="text" id="edit-search-txnid" placeholder="OR Transaction ID" class="p-2 border rounded-xl font-mono bg-white text-xs border-orange-300">
-                            <button onclick="loadTargetStudentTransactionsForEditing()" class="bg-orange-600 hover:bg-orange-700 text-white font-black rounded-xl text-xs px-3 transition-colors">Analyze Logs Array</button>
-                        </div>
-                        <div id="edit-transactions-selector-vane" class="hidden space-y-2 mt-3 p-2 bg-white rounded-xl border border-orange-200">
-                            <select id="edit-tx-index-select" onchange="populateTxEditFields()" class="w-full p-2 border rounded-lg bg-slate-50 font-mono text-[11px]"></select>
-                            <div class="grid grid-cols-2 gap-2 pt-1">
-                                <input type="number" id="edit-tx-amount" placeholder="Correct Amount" class="p-2 border rounded-lg text-xs">
-                                <input type="number" id="edit-tx-concession" placeholder="Correct Concession" class="p-2 border rounded-lg text-xs">
-                            </div>
-                            <button onclick="saveOverwrittenTransactionDataNode()" class="w-full bg-orange-700 text-white font-black py-2 rounded-lg text-xs mt-1">Execute Override Patch</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white p-4 rounded-2xl shadow-sm border border-indigo-200 bg-indigo-50/5">
-                    <h2 class="text-xs font-black text-indigo-950 uppercase tracking-wider border-b pb-2 mb-3">🖨️ 6. Instant Statement Print Station (Mobile Voucher Generator)</h2>
-                    <div class="space-y-3">
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-white p-2.5 border rounded-xl">
-                            <select id="instant-year" onchange="loadStudentsForInstantDropdown()" class="p-1 border rounded bg-slate-50 text-[11px] font-bold"><option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option></select>
-                            <select id="instant-class" onchange="loadStudentsForInstantDropdown()" class="p-1 border rounded bg-slate-50 text-[11px] class-dropdown-list font-bold"></select>
-                            <select id="instant-student-select" onchange="fetchPaidAmountFromHistoryLogs()" class="p-1 border rounded bg-slate-50 text-[11px] font-bold"><option value="">-- Select Student --</option></select>
-                            <select id="instant-month" onchange="fetchPaidAmountFromHistoryLogs()" class="p-1 border rounded bg-slate-50 text-[11px] font-bold"></select>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2 bg-slate-50 p-2 rounded-xl border">
-                            <input type="number" id="instant-amount" readonly placeholder="Paid Net Total Amount" class="w-full p-2 border bg-slate-100 rounded-xl text-xs font-black text-slate-700">
-                            <input type="number" id="instant-concession" readonly placeholder="Concession Rate Amount" class="w-full p-2 border bg-slate-100 rounded-xl text-xs text-purple-800 font-black">
-                        </div>
-                        <button onclick="generateInstantMobileSlip()" class="w-full bg-indigo-700 text-white font-black py-2.5 rounded-xl text-xs">🚀 Generate & Sync Slip (Card Size)</button>
-                        <div id="live-card-preview-area" class="hidden no-print border-t pt-3">
-                            <div id="screen-receipt-card" class="mobile-receipt-card"></div>
-                            <button onclick="window.print()" class="w-32 mx-auto block bg-slate-900 text-white font-bold py-1.5 rounded-lg text-[10px] mt-2">🖨️ Direct Print Slip</button>
-                        </div>
-                    </div>
-                </div>
-
+        <main class="max-w-7xl mx-auto p-4 md:p-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <button onclick="openAdminModal('modal-add-student')" class="admin-main-btn bg-slate-800 hover:bg-slate-900 text-white p-5 rounded-2xl shadow font-black text-left text-sm md:text-lg flex justify-between items-center transition-all cursor-pointer border border-slate-700">
+                    <span>👤 1. Add Student Profile</span> <span class="text-amber-400">➔</span>
+                </button>
+                <button onclick="openAdminModal('modal-allocate-dues')" class="admin-main-btn bg-slate-800 hover:bg-slate-900 text-white p-5 rounded-2xl shadow font-black text-left text-sm md:text-lg flex justify-between items-center transition-all cursor-pointer border border-slate-700">
+                    <span>⚙️ 2. Add / Allocate Dues</span> <span class="text-amber-400">➔</span>
+                </button>
+                <button onclick="openAdminModal('modal-collect-payments')" class="admin-main-btn bg-slate-800 hover:bg-slate-900 text-white p-5 rounded-2xl shadow font-black text-left text-sm md:text-lg flex justify-between items-center transition-all cursor-pointer border border-slate-700">
+                    <span>💳 3. Collect & Log Payments</span> <span class="text-amber-400">➔</span>
+                </button>
+                <button onclick="openAdminModal('modal-financial-analytics')" class="admin-main-btn bg-slate-800 hover:bg-slate-900 text-white p-5 rounded-2xl shadow font-black text-left text-sm md:text-lg flex justify-between items-center transition-all cursor-pointer border border-slate-700">
+                    <span>📊 4. Financial Analytics Desk</span> <span class="text-amber-400">➔</span>
+                </button>
+                <button onclick="openAdminModal('modal-error-correction')" class="admin-main-btn bg-slate-800 hover:bg-slate-900 text-white p-5 rounded-2xl shadow font-black text-left text-sm md:text-lg flex justify-between items-center transition-all cursor-pointer border border-slate-700">
+                    <span>✏️ 5. Error Correction Console</span> <span class="text-amber-400">➔</span>
+                </button>
+                <button onclick="openAdminModal('modal-range-dues-report')" class="admin-main-btn bg-indigo-900 hover:bg-indigo-950 text-white p-5 rounded-2xl shadow font-black text-left text-sm md:text-lg flex justify-between items-center transition-all cursor-pointer border border-indigo-800">
+                    <span>📋 6. Custom Month Range Auditor</span> <span class="text-yellow-300">➔</span>
+                </button>
+                <button onclick="openAdminModal('modal-print-station')" class="admin-main-btn bg-slate-800 hover:bg-slate-900 text-white p-5 rounded-2xl shadow font-black text-left text-sm md:text-lg flex justify-between items-center transition-all cursor-pointer border border-slate-700 md:col-span-2 lg:col-span-3">
+                    <span>🖨️ 7. Instant Statement Print Station (Voucher Slip)</span> <span class="text-amber-400">➔</span>
+                </button>
             </div>
         </main>
     </div>
 
-    <div id="teacher-lock-notice" class="max-w-xs mx-auto my-14 bg-white p-6 rounded-2xl shadow-md border text-center space-y-2">
-        <span class="text-3xl">🔒</span>
-        <h3 class="text-sm font-black text-slate-700">Admin Environment Locked</h3>
+    <div id="teacher-lock-notice" class="max-w-sm mx-auto my-14 bg-white p-8 rounded-2xl shadow-md border text-center space-y-3">
+        <span class="text-4xl">🔒</span>
+        <h3 class="text-sm md:text-lg font-black text-slate-700">Admin Environment Locked</h3>
+        <p class="text-xs md:text-sm text-slate-400">Please unlock with system PIN code key to display metrics console.</p>
+    </div>
+
+    <div id="modal-add-student" class="custom-popup-modal">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-5 md:p-6 shadow-2xl relative border">
+            <button onclick="closeAdminModal('modal-add-student')" class="absolute top-3 right-3 bg-slate-100 text-slate-500 w-9 h-9 rounded-full flex items-center justify-center font-black text-xl">&times;</button>
+            <h3 class="text-base md:text-xl font-black text-slate-900 border-b pb-2 mb-4">👤 Add Student Profile (नया छात्र जोड़ें)</h3>
+            <div class="space-y-4 text-xs md:text-base">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <input type="text" id="stud-name" placeholder="Student's Name" class="p-2.5 border rounded-xl bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                    <input type="text" id="stud-father" placeholder="Father's Name" class="p-2.5 border rounded-xl bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                    <input type="text" id="stud-roll" placeholder="Roll Number / ID" class="p-2.5 border rounded-xl bg-white font-mono font-bold focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <select id="stud-class" class="p-2 border rounded-xl bg-white class-dropdown-list font-bold"></select>
+                    <select id="stud-term" class="p-2 border rounded-xl bg-white term-dropdown-list font-bold"></select>
+                    <select id="stud-year" class="p-2.5 border rounded-xl bg-white font-bold">
+                        <option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option>
+                    </select>
+                </div>
+                <button onclick="addNewStudent()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow-md transition-all">Save Student Profile</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-allocate-dues" class="custom-popup-modal">
+        <div class="bg-white rounded-3xl max-w-3xl w-full p-5 md:p-6 shadow-2xl relative border">
+            <button onclick="closeAdminModal('modal-allocate-dues')" class="absolute top-3 right-3 bg-slate-100 text-slate-500 w-9 h-9 rounded-full flex items-center justify-center font-black text-xl">&times;</button>
+            <h3 class="text-base md:text-xl font-black text-slate-900 border-b pb-2 mb-4">⚙️ Add / Allocate Dues (फीस असाइन करें)</h3>
+            <div class="space-y-4 modal-body-scroll text-xs md:text-base pr-1">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <select id="dues-year" onchange="loadStudentsForDuesDropdown()" class="p-2 border rounded-xl bg-white font-bold">
+                        <option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option>
+                    </select>
+                    <select id="dues-class" onchange="loadStudentsForDuesDropdown()" class="p-2 border rounded-xl bg-white class-dropdown-list font-bold"></select>
+                    <select id="dues-term" onchange="loadStudentsForDuesDropdown()" class="p-2.5 border rounded-xl bg-white term-dropdown-list font-bold"></select>
+                </div>
+                
+                <select id="dues-student-select" onchange="fetchAndShowLiveStudentDuesPreview()" class="w-full p-2.5 border border-blue-300 rounded-xl bg-blue-50 font-black text-blue-900">
+                    <option value="">-- Select Student Profile --</option>
+                </select>
+                
+                <div class="bg-white p-3 border rounded-xl">
+                    <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Select Targets to Apply:</label>
+                    <div id="assign-dues-checkbox-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2 max-h-48 overflow-y-auto text-xs"></div>
+                </div>
+
+                <div id="dynamic-amount-inputs-container" class="space-y-2 bg-slate-100 p-3 rounded-xl border border-slate-200 hidden">
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-wide mb-1">💰 Enter Specified Amounts:</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div id="box-month-amt" class="hidden">
+                            <label class="block text-xs font-bold text-slate-600 uppercase">📅 Monthly Fee Rate (₹)</label>
+                            <input type="number" id="dues-amount-month" placeholder="e.g. 300" class="w-full p-2 border bg-white rounded-lg font-black">
+                        </div>
+                        <div id="box-exam-amt" class="hidden">
+                            <label class="block text-xs font-bold text-indigo-900 uppercase">📋 Exam Fee (₹)</label>
+                            <input type="number" id="dues-amount-exam" placeholder="e.g. 150" class="w-full p-2 border border-indigo-200 bg-white rounded-lg font-black text-indigo-950">
+                        </div>
+                        <div id="box-reg-amt" class="hidden">
+                            <label class="block text-xs font-bold text-amber-900 uppercase">🔑 Registration Fee (₹)</label>
+                            <input type="number" id="dues-amount-reg" placeholder="e.g. 200" class="w-full p-2 border border-amber-200 bg-white rounded-lg font-black text-amber-950">
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="addMonthlyFeeToStudent()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3 rounded-xl shadow-md transition-all">➕ Update Outstanding Balance</button>
+                
+                <div id="dues-live-preview-box" class="mt-2 p-3 bg-slate-50 rounded-xl border hidden space-y-1.5">
+                    <p class="font-bold text-slate-700 border-b pb-1">📈 Live Mini Ledger Preview:</p>
+                    <div id="dues-preview-list" class="max-h-36 overflow-y-auto space-y-1"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-collect-payments" class="custom-popup-modal">
+        <div class="bg-white rounded-3xl max-w-5xl w-full p-4 md:p-6 shadow-2xl relative border">
+            <button onclick="closeAdminModal('modal-collect-payments')" class="absolute top-3 right-3 bg-slate-100 text-slate-500 w-9 h-9 rounded-full flex items-center justify-center font-black text-xl">&times;</button>
+            <h3 class="text-base md:text-xl font-black text-slate-900 border-b pb-2 mb-4">💳 Collect & Log Payments (फीस जमा करें)</h3>
+            <div class="modal-body-scroll text-xs md:text-base pr-1 space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 bg-slate-100 p-2 rounded-xl border">
+                    <select id="collect-year" class="p-1.5 border rounded-lg bg-white font-bold">
+                        <option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option>
+                    </select>
+                    <select id="collect-class" class="p-1.5 border rounded-lg bg-white class-dropdown-list font-bold"></select>
+                    <select id="collect-term" class="p-1.5 border rounded-lg bg-white term-dropdown-list font-bold"></select>
+                    <button onclick="loadStudentsForPayment()" class="bg-slate-900 hover:bg-black text-white font-black py-1.5 rounded-lg transition-colors">Fetch Roster</button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div class="md:col-span-2 border rounded-xl p-2 max-h-96 overflow-y-auto bg-white">
+                        <div id="collect-students-list" class="space-y-1 text-center py-6 text-slate-400 font-semibold">Awaiting synchronization parameters...</div>
+                    </div>
+
+                    <div id="payment-box" class="md:col-span-3 border rounded-xl p-4 bg-slate-50 hidden space-y-4">
+                        <div>
+                            <h3 id="pay-student-title" class="font-black text-slate-900 text-sm md:text-xl">Student Title</h3>
+                            <p id="pay-student-meta" class="text-xs text-slate-400 font-semibold">ID: --</p>
+                        </div>
+
+                        <div class="bg-amber-50 p-3 rounded-xl border border-amber-200 space-y-1">
+                            <p class="font-black text-amber-900 uppercase text-xs tracking-wide">📋 Current Balance Status:</p>
+                            <div id="pay-panel-old-data-view" class="max-h-28 overflow-y-auto bg-white p-2 rounded border border-amber-100 space-y-1"></div>
+                        </div>
+                        
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 space-y-3">
+                            <div id="pay-months-checkboxes" class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-36 overflow-y-auto bg-slate-50 p-2 border rounded-lg"></div>
+                            <div class="grid grid-cols-3 gap-2">
+                                <div>
+                                    <label class="block text-[10px] md:text-xs font-bold text-slate-400 uppercase">Gross Base</label>
+                                    <input type="number" id="pay-total-selected-hidden" readonly class="w-full p-2 border bg-slate-100 rounded-lg font-bold mt-0.5">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] md:text-xs font-bold text-emerald-600 uppercase">Concession</label>
+                                    <input type="number" id="pay-concession-input" value="0" oninput="calculateLiveSelectedMonthsFee()" class="w-full p-2 border border-emerald-300 bg-emerald-50 rounded-lg font-black mt-0.5 text-emerald-800">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] md:text-xs font-bold text-blue-900 uppercase">Net Intake</label>
+                                    <input type="number" id="pay-amount-input" class="w-full p-2 border border-blue-300 bg-white rounded-lg font-black mt-0.5 text-blue-950">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <select id="pay-mode" class="w-full p-1.5 border rounded-lg bg-white font-bold"><option>Cash</option><option>Online</option></select>
+                                <button onclick="submitFeePayment()" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-black py-2 rounded-lg shadow transition-all">Finalize Receipt</button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="text-xs font-black text-slate-400 uppercase mb-1">📋 Historical Payments Ledger:</p>
+                            <div class="border rounded-xl overflow-hidden overflow-x-auto bg-white">
+                                <table class="w-full text-left min-w-[380px]">
+                                    <thead>
+                                        <tr class="bg-slate-800 text-white font-bold text-xs">
+                                            <th class="p-2">TXN ID</th>
+                                            <th class="p-2">Fee Head / Item</th>
+                                            <th class="p-2 text-center">Net Paid</th>
+                                            <th class="p-2 text-center text-amber-300">Conc</th>
+                                            <th class="p-2 text-center text-rose-300">Baki Dues</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="collector-live-history-rows" class="divide-y divide-slate-200"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-financial-analytics" class="custom-popup-modal">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-5 md:p-6 shadow-2xl relative border">
+            <button onclick="closeAdminModal('modal-financial-analytics')" class="absolute top-3 right-3 bg-slate-100 text-slate-500 w-9 h-9 rounded-full flex items-center justify-center font-black text-xl">&times;</button>
+            <h3 class="text-base md:text-xl font-black text-slate-900 border-b pb-2 mb-4">📊 Batch Intelligence & Financial Analytics</h3>
+            <div class="space-y-4 text-xs md:text-base">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 bg-slate-100 p-2 border rounded-xl">
+                    <select id="audit-year" class="p-2 border rounded-lg font-bold bg-white">
+                        <option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option>
+                    </select>
+                    <select id="audit-class" class="p-2 border rounded-lg font-black text-blue-900 bg-white">
+                        <option value="ALL">-- COMBINE ALL CLASSES --</option>
+                        <option value="Class 1">Class 1</option><option value="Class 2">Class 2</option>
+                        <option value="Class 3">Class 3</option><option value="Class 4">Class 4</option>
+                        <option value="Class 5">Class 5</option><option value="Class 6">Class 6</option>
+                        <option value="Class 7">Class 7</option><option value="Class 8">Class 8</option>
+                        <option value="Class 9">Class 9</option><option value="Class 10">Class 10</option>
+                    </select>
+                    <button onclick="calculateGlobalFinancialAuditMetrics()" class="bg-blue-900 hover:bg-slate-950 text-white font-black py-2 rounded-lg uppercase tracking-wider transition-all shadow-xs cursor-pointer">
+                        Fetch Metrics
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="bg-slate-50 border p-4 rounded-xl flex items-center space-x-3">
+                        <div class="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-2xl">💰</div>
+                        <div>
+                            <span class="block text-xs font-bold uppercase text-slate-400">Net Collected</span>
+                            <h3 id="audit-total-received" class="text-lg md:text-2xl font-black text-emerald-700">₹0</h3>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 border p-4 rounded-xl flex items-center space-x-3">
+                        <div class="w-12 h-12 rounded-full bg-rose-100 flex items-center justify-center text-2xl">🚨</div>
+                        <div>
+                            <span class="block text-xs font-bold uppercase text-slate-400">Total Outstanding</span>
+                            <h3 id="audit-total-dues" class="text-lg md:text-2xl font-black text-rose-700">₹0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-error-correction" class="custom-popup-modal">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-5 md:p-6 shadow-2xl relative border">
+            <button onclick="closeAdminModal('modal-error-correction')" class="absolute top-3 right-3 bg-slate-100 text-slate-500 w-9 h-9 rounded-full flex items-center justify-center font-black text-xl">&times;</button>
+            <h3 class="text-base md:text-xl font-black text-slate-900 border-b pb-2 mb-4">✏️ Error Correction Console (डाटा सुधारें)</h3>
+            <div class="space-y-4 text-xs md:text-base">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <input type="text" id="edit-search-sid" placeholder="Student ID" class="p-2 border rounded-xl font-mono bg-white">
+                    <input type="text" id="edit-search-txnid" placeholder="OR Transaction ID" class="p-2 border rounded-xl font-mono bg-white border-orange-300">
+                    <button onclick="loadTargetStudentTransactionsForEditing()" class="bg-orange-600 hover:bg-orange-700 text-white font-black rounded-xl px-3 transition-colors">Analyze Logs</button>
+                </div>
+                <div id="edit-transactions-selector-vane" class="hidden space-y-2 mt-3 p-3 bg-slate-50 rounded-xl border border-orange-200">
+                    <select id="edit-tx-index-select" onchange="populateTxEditFields()" class="w-full p-2 border rounded-lg bg-white font-mono"></select>
+                    <div class="grid grid-cols-2 gap-2 pt-1">
+                        <input type="number" id="edit-tx-amount" placeholder="Correct Amount" class="p-2 border rounded-lg bg-white">
+                        <input type="number" id="edit-tx-concession" placeholder="Correct Concession" class="p-2 border rounded-lg bg-white">
+                    </div>
+                    <button onclick="saveOverwrittenTransactionDataNode()" class="w-full bg-orange-700 text-white font-black py-2.5 rounded-lg mt-1">Execute Override Patch</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-range-dues-report" class="custom-popup-modal">
+        <div class="bg-white rounded-3xl max-w-4xl w-full p-5 md:p-6 shadow-2xl relative border">
+            <button onclick="closeAdminModal('modal-range-dues-report')" class="absolute top-3 right-3 bg-slate-100 text-slate-500 w-9 h-9 rounded-full flex items-center justify-center font-black text-xl">&times;</button>
+            <h3 class="text-base md:text-xl font-black text-indigo-950 border-b pb-2 mb-4">📋 Custom Month Range Arrears Auditor (सबका Dues एक साथ)</h3>
+            <div class="space-y-4 modal-body-scroll text-xs md:text-base pr-1">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-100 p-3 rounded-xl border">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Select Year</label>
+                        <select id="range-dues-year" class="w-full p-1.5 border rounded bg-white font-bold">
+                            <option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Select Class</label>
+                        <select id="range-dues-class" class="w-full p-1.5 border rounded bg-white font-bold class-dropdown-list"></select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">From Month (यहाँ से)</label>
+                        <select id="range-dues-from" class="w-full p-1.5 border rounded bg-white font-bold"></select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">To Month (यहाँ तक)</label>
+                        <select id="range-dues-to" class="w-full p-1.5 border rounded bg-white font-bold"></select>
+                    </div>
+                </div>
+                <button onclick="generateCustomRangeDuesReport()" class="w-full bg-indigo-700 hover:bg-indigo-800 text-white font-black py-3 rounded-xl uppercase tracking-wider">
+                    🚀 Compile Arrears Report Data
+                </button>
+                
+                <div id="range-dues-result-area" class="hidden border rounded-xl overflow-hidden bg-white shadow-xs overflow-x-auto">
+                    <table class="w-full text-left min-w-[500px]">
+                        <thead>
+                            <tr class="bg-slate-900 text-white font-black">
+                                <th class="p-3">Student Name</th>
+                                <th class="p-3">Roll ID</th>
+                                <th class="p-3">Defaulter Months</th>
+                                <th class="p-3 text-right text-rose-300">Range Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="range-dues-table-rows" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-print-station" class="custom-popup-modal">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-5 md:p-6 shadow-2xl relative border">
+            <button onclick="closeAdminModal('modal-print-station')" class="absolute top-3 right-3 bg-slate-100 text-slate-500 w-9 h-9 rounded-full flex items-center justify-center font-black text-xl">&times;</button>
+            <h3 class="text-base md:text-xl font-black text-slate-900 border-b pb-2 mb-4">🖨️ Instant Statement Print Station (Voucher Slip)</h3>
+            <div class="space-y-4 modal-body-scroll text-xs md:text-base pr-1">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-100 p-2 border rounded-xl">
+                    <select id="instant-year" onchange="loadStudentsForInstantDropdown()" class="p-1 border rounded bg-white font-bold"><option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option></select>
+                    <select id="instant-class" onchange="loadStudentsForInstantDropdown()" class="p-1 border rounded bg-white class-dropdown-list font-bold"></select>
+                    <select id="instant-student-select" onchange="fetchPaidAmountFromHistoryLogs()" class="p-1 border rounded bg-white font-bold"><option value="">-- Select Student --</option></select>
+                    <select id="instant-month" onchange="fetchPaidAmountFromHistoryLogs()" class="p-1 border rounded bg-white font-bold"></select>
+                </div>
+                <div class="grid grid-cols-2 gap-2 bg-slate-50 p-2 rounded-xl border">
+                    <input type="number" id="instant-amount" readonly placeholder="Paid Net Total Amount" class="w-full p-2 border bg-white rounded-xl font-black text-slate-700">
+                    <input type="number" id="instant-concession" readonly placeholder="Concession Rate Amount" class="w-full p-2 border bg-white rounded-xl text-purple-800 font-black">
+                </div>
+                <button onclick="generateInstantMobileSlip()" class="w-full bg-indigo-700 text-white font-black py-3 rounded-xl">🚀 Generate & Sync Slip (Card Size)</button>
+                <div id="live-card-preview-area" class="hidden no-print border-t pt-3">
+                    <div id="screen-receipt-card" class="mobile-receipt-card"></div>
+                    <button onclick="window.print()" class="w-36 mx-auto block bg-slate-900 text-white font-bold py-2 rounded-lg mt-2 text-center">🖨️ Direct Print Slip</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="loginModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm justify-center items-center p-4 z-50 hidden">
         <div class="bg-white rounded-2xl max-w-xs w-full p-5 shadow-2xl relative border">
             <button onclick="toggleTeacherLoginModal()" class="absolute top-2 right-3 font-black text-lg">&times;</button>
-            <input type="password" id="teacher-password-input" placeholder="Enter PIN Key" class="w-full p-2.5 border rounded-xl text-xs text-center tracking-widest">
-            <button onclick="verifyTeacherLogin()" class="w-full bg-blue-700 text-white font-black py-2 rounded-xl text-xs mt-2">Unlock System</button>
+            <input type="password" id="teacher-password-input" placeholder="Enter PIN Key" class="w-full p-2.5 border rounded-xl text-center tracking-widest text-base font-bold">
+            <button onclick="verifyTeacherLogin()" class="w-full bg-blue-700 text-white font-black py-2.5 rounded-xl mt-2 text-sm">Unlock System</button>
         </div>
     </div>
 
     <div id="publicSearchModal" class="custom-popup-modal">
         <div class="bg-white rounded-3xl max-w-2xl w-full p-4 md:p-6 shadow-2xl relative flex flex-col max-h-[95vh] border border-slate-300">
-            <button onclick="closePublicSearchModal()" class="absolute top-3 right-3 bg-slate-100 text-slate-500 w-8 h-8 rounded-full flex items-center justify-center font-black text-xl">&times;</button>
-            <div class="text-center mb-3 border-b pb-2"><h3 class="text-lg font-black text-blue-950">🎓 SEC Student Financial Center</h3></div>
-            <div class="bg-slate-100 p-3 rounded-2xl border text-xs space-y-2">
-                <div class="grid grid-cols-3 gap-1.5">
-                    <select id="search-year" class="p-2 border bg-white rounded-lg text-xs"><option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option></select>
-                    <select id="search-class" class="p-2 border bg-white rounded-lg class-dropdown-list text-xs"></select>
-                    <select id="search-term" class="p-2 border bg-white rounded-lg term-dropdown-list text-xs"></select>
+            <button onclick="closePublicSearchModal()" class="absolute top-3 right-3 bg-slate-100 text-slate-500 w-9 h-9 rounded-full flex items-center justify-center font-black text-xl">&times;</button>
+            <div class="text-center mb-3 border-b pb-2"><h3 class="text-base md:text-xl font-black text-blue-950">🎓 SEC Student Financial Center</h3></div>
+            <div class="bg-slate-100 p-3 rounded-2xl border text-xs md:text-base space-y-2">
+                <div class="grid grid-cols-2 gap-1.5">
+                    <select id="search-year" onchange="loadPublicSearchStudentsDropdown()" class="p-2 border bg-white rounded-lg"><option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option></select>
+                    <select id="search-class" onchange="loadPublicSearchStudentsDropdown()" class="p-2 border bg-white rounded-lg class-dropdown-list"></select>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                    <input type="text" id="search-name" placeholder="Filter using Full Name..." class="p-2 border bg-white rounded-lg text-xs">
-                    <input type="text" id="search-roll" placeholder="OR Target Direct Roll ID" class="p-2 border bg-white rounded-lg font-mono text-xs">
+                    <select id="search-student-select" class="p-2 border bg-white rounded-lg font-bold text-blue-900">
+                        <option value="">-- Select Student Name --</option>
+                    </select>
+                    <input type="text" id="search-roll" placeholder="OR Target Direct Roll ID" class="p-2 border bg-white rounded-lg font-mono">
                 </div>
-                <button onclick="executePublicSearch()" class="w-full bg-blue-700 text-white font-black py-2.5 rounded-xl text-xs">🚀 Run Live Verification Search</button>
+                <button onclick="executePublicSearch()" class="w-full bg-blue-700 text-white font-black py-3 rounded-xl">🚀 Run Live Verification Search</button>
             </div>
             <div id="search-modal-results" class="modal-body-scroll mt-3 space-y-4 pr-1 hidden"></div>
         </div>
@@ -367,16 +452,32 @@
         let instantCachedStudentsMap = {}; 
         const b64_token = "U3VwZXJAMjAyNg=="; 
         
-        // 🗓️ STRICT SERIAL CHRONOLOGICAL ORDER FOR MONTHS
         const MASTER_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December", "Exam Fee", "Registration Fee"];
 
         window.addEventListener('DOMContentLoaded', () => {
             populateDropdownLists();
             renderDuesAssignCheckboxGrid();
             populateInstantMonthDropdown();
+            populateRangeReportMonthsDropdowns();
+            loadPublicSearchStudentsDropdown(); 
             openPublicSearchModal();
             applyAuthView(false);
         });
+
+        // CENTRAL MODAL CONTROL LOGICS
+        window.openAdminModal = function(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+        }
+
+        window.closeAdminModal = function(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
 
         function populateDropdownLists() {
             document.querySelectorAll('.class-dropdown-list').forEach(d => {
@@ -397,13 +498,23 @@
             });
         }
 
+        function populateRangeReportMonthsDropdowns() {
+            const fDrop = document.getElementById('range-dues-from');
+            const tDrop = document.getElementById('range-dues-to');
+            fDrop.innerHTML = ""; tDrop.innerHTML = "";
+            MASTER_MONTHS.forEach((m, idx) => {
+                fDrop.innerHTML += `<option value="${idx}">${m}</option>`;
+                tDrop.innerHTML += `<option value="${idx}" ${idx === 6 ? 'selected' : ''}>${m}</option>`;
+            });
+        }
+
         function renderDuesAssignCheckboxGrid() {
             const grid = document.getElementById('assign-dues-checkbox-grid');
             grid.innerHTML = "";
             MASTER_MONTHS.forEach(item => {
-                grid.innerHTML += `<label class="flex items-center gap-1.5 p-1 bg-white border rounded-lg cursor-pointer hover:bg-slate-100">
+                grid.innerHTML += `<label class="flex items-center gap-1.5 p-2 bg-slate-50 border rounded-lg cursor-pointer hover:bg-slate-200">
                     <input type="checkbox" class="assign-dues-target-cb text-blue-600 rounded" value="${item}" onchange="evaluateDynamicAmountInputBoxes()">
-                    <span class="truncate text-[10px] font-bold text-slate-700">${item}</span>
+                    <span class="truncate text-xs font-bold text-slate-700">${item}</span>
                 </label>`;
             });
         }
@@ -490,6 +601,22 @@
             } catch(e) { drop.innerHTML = "<option value=''>Error Loading</option>"; }
         }
 
+        window.loadPublicSearchStudentsDropdown = async function() {
+            const yr = document.getElementById('search-year').value;
+            const cls = document.getElementById('search-class').value;
+            const drop = document.getElementById('search-student-select');
+            drop.innerHTML = "<option value=''>Loading Student Profiles...</option>";
+            try {
+                const q = query(collection(db, "students"), where("year", "==", yr), where("class", "==", cls));
+                const snap = await getDocs(q);
+                if(snap.empty) { drop.innerHTML = "<option value=''>No registered student profiles.</option>"; return; }
+                drop.innerHTML = "<option value=''>-- Select Student Name --</option>";
+                snap.forEach(d => {
+                    drop.innerHTML += `<option value="${d.id}">${d.data().name} (Roll: ${d.data().rollNumber})</option>`;
+                });
+            } catch(e) { drop.innerHTML = "<option value=''>Error Loading Roster Data</option>"; }
+        }
+
         window.fetchPaidAmountFromHistoryLogs = function() {
             const sId = document.getElementById('instant-student-select').value;
             const targetMonth = document.getElementById('instant-month').value.trim();
@@ -530,7 +657,7 @@
                     const info = data.monthsLedger[k];
                     if(info && info.status !== "None") {
                         const isUnpaid = info.status === "Unpaid";
-                        previewHtml += `<div class="flex justify-between items-center border-b border-slate-200 py-1">
+                        previewHtml += `<div class="flex justify-between items-center border-b border-slate-200 py-1.5 text-sm md:text-base">
                             <span class="font-semibold text-slate-700">${k}</span>
                             <span class="${isUnpaid ? 'text-rose-600 font-bold' : 'text-emerald-600 font-bold'}">${info.status} (₹${info.amount})</span>
                         </div>`;
@@ -555,7 +682,8 @@
                 await setDoc(doc(db, "students", docId), { name, fatherName: fat, rollNumber: roll, class: cls, term: trm, year: yr, totalDue: 0, monthsLedger, transactions: [] });
                 alert("Success: Profile onboarding synced with database!");
                 document.getElementById('stud-name').value = ''; document.getElementById('stud-father').value = ''; document.getElementById('stud-roll').value = '';
-                loadStudentsForDuesDropdown(); loadStudentsForInstantDropdown();
+                closeAdminModal('modal-add-student');
+                loadStudentsForDuesDropdown(); loadStudentsForInstantDropdown(); loadPublicSearchStudentsDropdown();
             } catch(e){}
         }
 
@@ -574,7 +702,13 @@
                     if(item === "Exam Fee") assignedRate = amtExam;
                     else if(item === "Registration Fee") assignedRate = amtReg;
                     else assignedRate = amtMonth;
-                    if(assignedRate > 0) { monthsLedger[item] = { status: "Unpaid", amount: assignedRate, concessionGiven: monthsLedger[item]?.concessionGiven || 0 }; }
+                    if(assignedRate >= 0) {
+    monthsLedger[item] = {
+        status: "Unpaid",
+        amount: assignedRate,
+        concessionGiven: monthsLedger[item]?.concessionGiven || 0
+    };
+}
                 });
                 let totalDue = 0; Object.values(monthsLedger).forEach(v => { if(v.status === "Unpaid") totalDue += v.amount; });
                 await updateDoc(docRef, { monthsLedger, totalDue });
@@ -597,41 +731,36 @@
                 div.innerHTML = "";
                 snap.forEach(d => {
                     const s = d.data(); const b = document.createElement('button');
-                    b.className = "w-full text-left p-2 rounded-xl bg-white mb-1 border flex justify-between items-center text-xs font-bold cursor-pointer hover:bg-indigo-50";
-                    b.innerHTML = `<div><p class='text-slate-800 font-black'>${s.name}</p><span class='text-[10px] text-slate-400'>Roll: ${s.rollNumber}</span></div><span class='text-rose-600 bg-rose-50 px-2 py-0.5 rounded'>₹${s.totalDue}</span>`;
+                    b.className = "w-full text-left p-3 rounded-xl bg-slate-50 mb-1 border flex justify-between items-center text-sm font-bold cursor-pointer hover:bg-indigo-50";
+                    b.innerHTML = `<div><p class='text-slate-800 font-black'>${s.name}</p><span class='text-[11px] text-slate-400'>Roll: ${s.rollNumber}</span></div><span class='text-rose-600 bg-rose-50 px-2 py-0.5 rounded'>₹${s.totalDue}</span>`;
                     b.onclick = () => selectStudentForPaymentPanel(d.id, s);
                     div.appendChild(b);
                 });
             } catch(e){}
         }
 
-        // 🔄 LOAD OLD DATA AUTOMATICALLY WHEN NAME SELECT
         function selectStudentForPaymentPanel(id, data) {
             selectedStudentId = id; selectedStudentData = data;
             document.getElementById('pay-student-title').innerText = data.name;
             document.getElementById('pay-student-meta').innerText = `ID Ref: ${id} | Class: ${data.class}`;
             
-            // 📊 Paile Ka Data Section Renders in Order
             const oldDataBox = document.getElementById('pay-panel-old-data-view');
             oldDataBox.innerHTML = "";
             let oldDataHtml = "";
 
-            // 🗂️ Render Checkboxes & Old Status in Perfect Order
             const cbBox = document.getElementById('pay-months-checkboxes'); cbBox.innerHTML = "";
             
             MASTER_MONTHS.forEach(k => {
                 const info = data.monthsLedger[k];
                 if(info && info.status !== "None") {
-                    // Update Old Data Logs View
                     const statusColor = info.status === "Paid" ? "text-emerald-600" : "text-rose-600";
-                    oldDataHtml += `<div class="flex justify-between items-center border-b border-slate-100 py-0.5">
-                        <span class="text-slate-700 font-semibold">${k}</span>
-                        <span class="${statusColor} font-bold">${info.status} (₹${info.amount})</span>
+                    oldDataHtml += `<div class="flex justify-between items-center border-b border-slate-100 py-1.5 text-sm md:text-base">
+                        <span class="text-slate-700 font-semibold">📌 ${k}</span>
+                        <span class="${statusColor} font-black">₹${info.amount} (${info.status})</span>
                     </div>`;
 
-                    // If Unpaid, display checkbox option to Collect current payment
                     if(info.status === "Unpaid") {
-                        cbBox.innerHTML += `<label class="flex items-center gap-2 p-2 bg-slate-50 border rounded-lg text-[11px] font-black cursor-pointer hover:bg-slate-100">
+                        cbBox.innerHTML += `<label class="flex items-center gap-2 p-2.5 bg-slate-50 border rounded-lg text-sm font-black cursor-pointer hover:bg-slate-200">
                             <input type="checkbox" class="month-pay-checkbox rounded text-blue-600" value="${k}" data-amount="${info.amount}" onchange="calculateLiveSelectedMonthsFee()">
                             <span>${k} (₹${info.amount})</span>
                         </label>`;
@@ -640,11 +769,10 @@
             });
             oldDataBox.innerHTML = oldDataHtml || "<span class='text-slate-400 italic'>No dynamic heads assigned yet.</span>";
 
-            // 📜 Historical Table Update
             const historyBody = document.getElementById('collector-live-history-rows'); historyBody.innerHTML = "";
             const txs = data.transactions || [];
             if(txs.length === 0) {
-                historyBody.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-slate-400 italic">No historical records logged.</td></tr>`;
+                historyBody.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-slate-400 italic text-sm">No historical records logged.</td></tr>`;
             } else {
                 txs.forEach(t => {
                     const itemsArr = t.monthsPaid ? t.monthsPaid.split(',') : ['Fee'];
@@ -654,7 +782,7 @@
 
                     itemsArr.forEach((singleItem, idx) => {
                         historyBody.innerHTML += `
-                            <tr class="hover:bg-slate-100 text-[11px]">
+                            <tr class="hover:bg-slate-100 text-sm md:text-base">
                                 <td class="p-2 font-mono text-blue-900">${idx === 0 ? (t.txnId || 'N/A') : ''}</td>
                                 <td class="p-2 font-black text-slate-800">📌 ${singleItem.trim()}</td>
                                 <td class="p-2 text-center text-emerald-700 font-bold">₹${propNet}</td>
@@ -700,10 +828,73 @@
                 const receiptLog = { txnId: generatedTxnId, dateTime: stamp, monthsPaid: checkedItems.join(','), amount: netReceived, concession: concession, dueBalanceAfterTx: remainingDue };
                 await updateDoc(docRef, { monthsLedger: currentLedger, totalDue: remainingDue, transactions: arrayUnion(receiptLog) });
                 
-                alert(`Payment Finalized! Receipt ID: ${generatedTxnId}`);
+                alert(`Payment Finalized! New Receipt Logged ID: ${generatedTxnId}`);
                 const freshSnap = await getDoc(docRef); if(freshSnap.exists()) selectStudentForPaymentPanel(selectedStudentId, freshSnap.data());
                 loadStudentsForPayment();
             } catch(e){}
+        }
+
+        window.generateCustomRangeDuesReport = async function() {
+            const yr = document.getElementById('range-dues-year').value;
+            const cls = document.getElementById('range-dues-class').value;
+            const fromIdx = parseInt(document.getElementById('range-dues-from').value);
+            const toIdx = parseInt(document.getElementById('range-dues-to').value);
+            const tableBody = document.getElementById('range-dues-table-rows');
+            const resultArea = document.getElementById('range-dues-result-area');
+
+            if (fromIdx > toIdx) {
+                alert("🚨 Error: 'From Month' dropdown criteria cannot exceed 'To Month' range order logic!");
+                return;
+            }
+
+            tableBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-blue-900 font-bold animate-pulse">Syncing Range Vector Records...</td></tr>`;
+            resultArea.classList.remove('hidden');
+
+            try {
+                const q = query(collection(db, "students"), where("year", "==", yr), where("class", "==", cls));
+                const snap = await getDocs(q);
+                if (snap.empty) {
+                    tableBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-rose-600 italic font-bold">No data rosters found matching parameters.</td></tr>`;
+                    return;
+                }
+
+                let activeTargetSubRangeArray = MASTER_MONTHS.slice(fromIdx, toIdx + 1);
+                let fullRowsHtmlChunk = "";
+                let recordsCounter = 0;
+
+                snap.forEach(d => {
+                    const student = d.data();
+                    let studentRangeDuesSum = 0;
+                    let studentDefaulterMonthsList = [];
+
+                    activeTargetSubRangeArray.forEach(m => {
+                        if (student.monthsLedger && student.monthsLedger[m] && student.monthsLedger[m].status === "Unpaid") {
+                            const amt = student.monthsLedger[m].amount;
+                            studentRangeDuesSum += amt;
+                            studentDefaulterMonthsList.push(`${m} (₹${amt})`);
+                        }
+                    });
+
+                    if (studentRangeDuesSum > 0) {
+                        recordsCounter++;
+                        fullRowsHtmlChunk += `
+                            <tr class="hover:bg-slate-50 font-medium text-sm md:text-base">
+                                <td class="p-3 font-black text-slate-900">${student.name}</td>
+                                <td class="p-3 font-mono text-xs text-slate-500 font-bold">${student.rollNumber}</td>
+                                <td class="p-3 text-xs md:text-sm text-rose-700 font-bold">${studentDefaulterMonthsList.join(', ')}</td>
+                                <td class="p-3 text-right font-bold text-rose-600 font-mono">₹${studentRangeDuesSum}</td>
+                            </tr>`;
+                    }
+                });
+
+                if (recordsCounter === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-emerald-600 font-black text-sm md:text-base">🎉 Clean Sheet! All student profiles are fully paid in this custom selection range.</td></tr>`;
+                } else {
+                    tableBody.innerHTML = fullRowsHtmlChunk;
+                }
+            } catch (e) {
+                tableBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-red-600 font-bold">Error compiling database report array.</td></tr>`;
+            }
         }
 
         window.generateInstantMobileSlip = function() {
@@ -721,14 +912,44 @@
             const randTxnId = "TXN-" + Math.floor(1000 + Math.random() * 9000);
             const dateStr = new Date().toLocaleDateString('en-GB');
 
-            // 🚨 Calculate Remaining Dues array at the moment of receipt printing
-            let duesArr = [];
+            let perMonthFee = 0;
             MASTER_MONTHS.forEach(m => {
-                if(studentProfile.monthsLedger[m] && studentProfile.monthsLedger[m].status === "Unpaid") {
-                    duesArr.push(`${m}(₹${studentProfile.monthsLedger[m].amount})`);
+                if(!["Exam Fee", "Registration Fee", "November", "December"].includes(m) && perMonthFee === 0) {
+                    if(studentProfile.monthsLedger[m] && studentProfile.monthsLedger[m].amount > 0) {
+                        perMonthFee = studentProfile.monthsLedger[m].amount;
+                    }
                 }
             });
+            if(perMonthFee === 0) perMonthFee = 300; 
+
+            let prevDuesAmount = 0;
+            let prevDuesMonthsArr = [];
+            const preJanMonths = ["November", "December"];
+
+            let duesArr = [];
+            let totalRemainingDues = 0;
+
+            MASTER_MONTHS.forEach(m => {
+                if(studentProfile.monthsLedger[m] && studentProfile.monthsLedger[m].status === "Unpaid") {
+                    const dueAmt = studentProfile.monthsLedger[m].amount;
+                    totalRemainingDues += dueAmt;
+                    duesArr.push(`${m}(₹${dueAmt})`);
+
+                    if (preJanMonths.includes(m)) {
+                        prevDuesAmount += dueAmt;
+                        prevDuesMonthsArr.push(m);
+                    }
+                }
+            });
+
             const duesStringOutput = duesArr.length > 0 ? duesArr.join(', ') : "None (All Paid)";
+
+            let prevDuesMarkup = "";
+            if(prevDuesAmount > 0) {
+                prevDuesMarkup = `<div style="display: flex; justify-content: space-between; color: #b91c1c;">
+                    <span>Prev Dues (${prevDuesMonthsArr.join(',')}):</span><span>₹${prevDuesAmount}</span>
+                </div>`;
+            }
 
             const cardMarkup = `
                 <div style="text-align: center; border-bottom: 1px dashed #000; padding-bottom: 6px; margin-bottom: 6px;">
@@ -740,6 +961,7 @@
                     <div><b>Name:</b> ${studentProfile.name}</div>
                     <div><b>Class:</b> ${cls} (${yr})</div>
                     <div><b>Date:</b> ${dateStr}</div>
+                    <div style="border-top:1px dotted #ccc; margin-top:3px; padding-top:3px;"><b>Per Month Fee Rate:</b> ₹${perMonthFee}</div>
                 </div>
                 <table style="width: 100%; font-size: 10px; border-collapse: collapse; margin-bottom: 6px;">
                     <thead>
@@ -756,13 +978,15 @@
                     </tbody>
                 </table>
                 <div style="border-top: 1px dashed #000; padding-top: 4px; font-size: 9px; line-height: 1.4;">
-                    <div style="display: flex; justify-content: space-between;"><span>Concession Minus:</span><span>₹${concession}</span></div>
+                    ${prevDuesMarkup}
+                    <div style="display: flex; justify-content: space-between;"><span>Concession Rate:</span><span>₹${concession}</span></div>
                     <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 10px; border-top: 1px solid #000; margin-top: 2px; padding-top: 2px;">
-                        <span>PAID TOTAL (Net):</span><span>₹${amount}</span>
+                        <span>PAID AMOUNT:</span><span>₹${amount}</span>
                     </div>
                 </div>
-                <div style="border-top: 1px dotted #000; margin-top: 6px; padding-top: 4px; font-size: 8px; color: #b91c1c;">
-                    <b>⚠️ Remaining Dues List:</b> <span style="font-family:sans-serif;">${duesStringOutput}</span>
+                <div style="border-top: 1px dotted #000; margin-top: 6px; padding-top: 4px; font-size: 8px;">
+                    <b style="color: #b91c1c;">⚠️ Total Dues Month Sahit (₹${totalRemainingDues}):</b> 
+                    <span style="font-family:sans-serif; color: #333;">${duesStringOutput}</span>
                 </div>
                 <div style="text-align: center; font-size: 8px; margin-top: 12px; font-style: italic; color: #555;">
                     Thank You! Generated Statement Slip
@@ -772,7 +996,7 @@
             document.getElementById('screen-receipt-card').innerHTML = cardMarkup;
             document.getElementById('print-receipt-vane').innerHTML = cardMarkup;
             document.getElementById('live-card-preview-area').classList.remove('hidden');
-            alert(`Slip Generated for ${studentProfile.name}! Check below.`);
+            alert(`Slip Generated for ${studentProfile.name}! Check inside the modal.`);
         }
 
         window.calculateGlobalFinancialAuditMetrics = async function() {
@@ -837,60 +1061,67 @@
                 await updateDoc(doc(db, "students", currentlySelectedEditStudentId), { transactions: targetedActiveEditingLogsArray });
                 alert("Operation Overwrite Patch Successful!");
                 document.getElementById('edit-transactions-selector-vane').classList.add('hidden');
+                closeAdminModal('modal-error-correction');
             } catch(e){}
         }
 
         window.executePublicSearch = async function() {
             const yr = document.getElementById('search-year').value;
             const cls = document.getElementById('search-class').value;
-            const trm = document.getElementById('search-term').value;
-            const nameK = document.getElementById('search-name').value.trim().toLowerCase();
+            const chosenStudentId = document.getElementById('search-student-select').value;
             const rollK = document.getElementById('search-roll').value.trim();
             const resBox = document.getElementById('search-modal-results');
-            resBox.innerHTML = "<div class='text-center py-6 text-xs text-blue-900 font-bold animate-pulse'>🔄 SYNCING LIVE CAMPUS LEDGER...</div>";
+            resBox.innerHTML = "<div class='text-center py-6 text-base font-bold text-blue-900 animate-pulse'>🔄 SYNCING LIVE CAMPUS LEDGER...</div>";
             resBox.classList.remove('hidden');
+            
             try {
-                const q = query(collection(db, "students"), where("year", "==", yr), where("class", "==", cls), where("term", "==", trm));
-                const snap = await getDocs(q); let htmlChunk = "";
+                let snap;
+                if (chosenStudentId) {
+                    const singleDoc = await getDoc(doc(db, "students", chosenStudentId));
+                    snap = singleDoc.exists() ? [singleDoc] : [];
+                } else {
+                    const q = query(collection(db, "students"), where("year", "==", yr), where("class", "==", cls));
+                    snap = await getDocs(q);
+                }
+
+                let htmlChunk = "";
                 snap.forEach(docSnap => {
                     const s = docSnap.data();
-                    if((rollK && s.rollNumber === rollK) || (nameK && s.name.toLowerCase().includes(nameK)) || (!rollK && !nameK)) {
-                        let calculatedOutstandingDues = 0; let individualDuesBreakdownRowsHtml = "";
-                        
-                        MASTER_MONTHS.forEach(k => {
-                            const info = s.monthsLedger[k];
-                            if(info && info.status === "Unpaid") {
-                                calculatedOutstandingDues += info.amount; 
-                                individualDuesBreakdownRowsHtml += `
-                                    <div class="flex justify-between items-center bg-red-50 text-red-950 px-3 py-2 rounded-xl border text-xs font-black">
-                                        <span>📅 ${k}:</span>
-                                        <span class="text-red-600 font-mono">₹${info.amount}</span>
-                                    </div>`;
+                    if((rollK && s.rollNumber === rollK) || !rollK) {
+                        let totalRemainingDues = 0;
+                        let unPaidMonths = [];
+                        MASTER_MONTHS.forEach(m => {
+                            if(s.monthsLedger[m] && s.monthsLedger[m].status === "Unpaid") {
+                                totalRemainingDues += s.monthsLedger[m].amount;
+                                unPaidMonths.push(`${m} (₹${s.monthsLedger[m].amount})`);
                             }
                         });
+
                         htmlChunk += `
-                            <div class="p-4 bg-white rounded-2xl border space-y-4">
-                                <div class="bg-slate-900 text-white p-3 rounded-2xl text-center">
-                                    <h4 class="text-base font-black">${s.name}</h4>
-                                    <p class="text-[10px] text-slate-400">Roll ID: ${s.rollNumber}</p>
+                            <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200 shadow-sm space-y-4 max-w-lg mx-auto text-base">
+                                <div class="bg-slate-900 text-white p-4 rounded-xl text-center">
+                                    <h4 class="text-lg md:text-xl font-black tracking-wide">${s.name}</h4>
+                                    <p class="text-xs md:text-sm font-mono text-slate-400 mt-0.5">Roll ID: ${s.rollNumber} | ${cls}</p>
                                 </div>
-                                <div class="space-y-1">
-                                    <p class="text-[10px] font-black text-slate-400 uppercase">🗓️ Current Unpaid Outstanding Dues:</p>
-                                    <div class="grid grid-cols-1 gap-1.5">${individualDuesBreakdownRowsHtml || '<div class="text-center text-xs py-2 text-emerald-700 bg-emerald-50 rounded-xl">✅ Zero outstanding fee parameters encountered!</div>'}</div>
+                                <div>
+                                    <p class="text-xs md:text-sm font-black uppercase text-slate-400 tracking-wider mb-1.5">⚠️ Pending Month Details (बकाया महीने):</p>
+                                    <div class="text-sm md:text-xl space-y-2 font-black bg-white p-4 rounded-xl border mt-1">
+                                        ${unPaidMonths.map(m => `<div class='flex justify-between border-b border-slate-200/60 pb-1.5 text-rose-700'><span>📌 ${m.split(' ')[0]} ${m.split(' ')[1] ? m.split(' ')[1] : ''}</span><span>${m.split(' ')[2] ? m.split(' ')[2] : m.split(' ')[1]}</span></div>`).join('') || '<span class="text-emerald-600 font-bold italic block text-center py-2">No Arrears Logged (Fully Paid)</span>'}
+                                    </div>
                                 </div>
-                                <div class="bg-gradient-to-r from-red-600 to-rose-700 text-white p-3 rounded-2xl flex justify-between items-center font-black">
-                                    <span>Net Total Amount Payable:</span>
-                                    <div class="text-xl font-mono">₹${calculatedOutstandingDues}</div>
+                                <div class="mt-2 bg-gradient-to-r ${totalRemainingDues > 0 ? 'from-red-600 to-rose-700' : 'from-emerald-600 to-teal-700'} text-white p-4 rounded-2xl text-center shadow-md">
+                                    <span class="block text-xs uppercase font-bold tracking-widest opacity-90">Total Outstanding Balance</span>
+                                    <h3 class="text-2xl md:text-3xl font-black font-mono mt-0.5">₹${totalRemainingDues}</h3>
                                 </div>
-                            </div><hr class="border-dashed border-slate-200 my-2">`;
+                            </div>
+                            <hr class="border-dashed border-slate-200 my-4">`;
                     }
                 });
-                resBox.innerHTML = htmlChunk || "<div class='text-center text-rose-600 py-6 text-xs bg-rose-50 rounded-xl'>❌ Search mismatch.</div>";
-            } catch(e){}
+                resBox.innerHTML = htmlChunk || "<div class='text-center text-rose-600 py-6 text-base bg-rose-50 rounded-xl font-bold'>❌ Search mismatch. Profile details not found.</div>";
+            } catch(e){
+                resBox.innerHTML = "<div class='text-center text-red-600 text-sm font-bold'>Error executing matrix calculations.</div>";
+            }
         }
     </script>
 </body>
 </html>
-
-
-
